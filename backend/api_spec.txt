@@ -1,0 +1,23 @@
+ROUTE /auth
+  - POST /sign-in (rejectIfSession)
+    - username
+    - password
+  - POST /sign-up (rejectIfSession)
+    - username
+    - password
+
+ROUTE /chats
+  - GET get-chats-by-user (requireSession, requireAuthToken, authenticateUser)
+    -username
+
+ROUTE /users
+  - get-users-by-chat (requireSession, requireAuthToken)
+    - chat_id
+  - get-recipients-by-message (requireSession, requireAuthToken)
+    - message_id
+
+ROUTE /messages
+  - get-messages-by-user (requireSession, requireAuthToken, authenticateUser)
+    - username
+  - get-messages-by-chat (requireSession, requireAuthToken)
+    - chat_id

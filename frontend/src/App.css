@@ -1,0 +1,16 @@
+html {
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.primary-color {
+  color: var(--pico-primary);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.danger {
+  color: #c84f48;
+}
