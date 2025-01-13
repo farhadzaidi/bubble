@@ -1,9 +1,12 @@
+import dotenv from "dotenv";
 import session from "express-session";
 import Redis from "ioredis";
 import connectRedis from "connect-redis";
 import { RequestHandler } from "express";
 
-// Set up session to username
+dotenv.config();
+
+// Set up session data to store username
 declare module "express-session" {
   export interface SessionData {
     username: string;
@@ -23,11 +26,10 @@ export const createSessionStore = (): RequestHandler => {
     saveUninitialized: false,
     // rolling: true,
     cookie: {
-      secure: process.env.ENV === "prod",
+      secure: process.env.ENV == "prod",
       httpOnly: true,
       sameSite: "strict",
       maxAge: 1000 * 60 * 15, // 15 minute
-      // maxAge: 1000 * 5,
     },
   });
 };

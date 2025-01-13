@@ -5,6 +5,8 @@ import { apiPostRequest } from "../utils/api";
 import { hashPassword } from "../utils/crypto";
 
 const SignUpForm = () => {
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -12,8 +14,6 @@ const SignUpForm = () => {
   const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
-
-  const navigate = useNavigate();
 
   // Helper function to ensure form data is not empty on submit and set error
   // message(s) accordingly
@@ -72,9 +72,11 @@ const SignUpForm = () => {
         password: hashedPassword,
       });
 
+      const json = await response.json();
       if (response.ok) {
-        // TODO
-        console.log("Sign up successful");
+        sessionStorage.setItem("username", username);
+        sessionStorage.setItem("token", json.token);
+        navigate("/");
       } else setUsernameError("Username already exists"); // Only possible error
     }
   };

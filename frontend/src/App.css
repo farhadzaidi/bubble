@@ -3,6 +3,8 @@ html {
   scrollbar-width: none;
 }
 
+/* Utility classes */
+
 .primary-color {
   color: var(--pico-primary);
 }
@@ -11,6 +13,6 @@ html {
   text-align: center;
 }
 
-.danger {
+.text-danger {
   color: #c84f48;
 }

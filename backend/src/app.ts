@@ -15,8 +15,16 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(createSessionStore());
-app.use(logRequests);
-if (process.env.ENV === "dev") app.use(cors());
+
+if (process.env.ENV === "dev") {
+  app.use(logRequests);
+  app.use(
+    cors({
+      origin: "http://localhost:5173",
+      credentials: true,
+    })
+  );
+}
 
 // Routers
 app.use("/auth", authRouter);

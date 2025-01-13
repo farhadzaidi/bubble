@@ -21,7 +21,7 @@ export const apiGetRequest = async (
     });
   }
 
-  const options: RequestInit = { method: "GET" };
+  const options: RequestInit = { method: "GET", credentials: "include" };
   return await fetch(url, options);
 };
 
@@ -30,7 +30,7 @@ export const apiPostRequest = async (
   body?: Record<string, string>
 ): Promise<Response> => {
   const url = new URL(`${API_URL}${endpoint}`);
-  const options: any = { method: "POST", headers: {} };
+  const options: any = { method: "POST", credentials: "include", headers: {} };
 
   // Include body if provided
   if (body) {

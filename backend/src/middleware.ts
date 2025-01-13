@@ -11,7 +11,7 @@ export const requireSession = (
   next: NextFunction
 ): void => {
   // Ensure that session is valid
-  if (!req.session || !req.session.id || !req.session.username) {
+  if (!req.session || !req.session.username) {
     res.status(401).json({ error: "Invalid or expired session" });
     return;
   }
@@ -81,10 +81,11 @@ export const rejectIfSession = (
 // Logs all incoming requests
 export const logRequests = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void => {
-  if (process.env.ENV === "dev" && !process.env.JEST_WORKER_ID)
+  if (!process.env.JEST_WORKER_ID) {
     console.log(`${req.method} ${req.path}`);
+  }
   next();
 };

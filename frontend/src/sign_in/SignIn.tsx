@@ -2,13 +2,15 @@ import { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiPostRequest } from "../utils/api";
 import { hashPassword } from "../utils/crypto";
+import { useInvalidSession } from "../utils/hooks";
 
 function SignIn() {
+  const navigate = useNavigate();
+  const isValidSession = useInvalidSession();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
-
-  const navigate = useNavigate();
 
   const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>): void => {
     e.preventDefault();
@@ -30,13 +32,12 @@ function SignIn() {
 
     const json = await response.json();
     if (response.ok) {
-      sessionStorage.setItem("username", username);
       sessionStorage.setItem("token", json.token);
       navigate("/");
     } else setAuthError(json.error);
   };
 
-  return (
+  return isValidSession ? null : (
     <>
       <h3 className="primary-color text-center">Sign In</h3>
       <article>
@@ -71,7 +72,7 @@ function SignIn() {
           Don't have an account? <a href="/sign-up">Sign Up</a>
         </small>
 
-        {authError !== "" && <h6 className="danger">{authError}</h6>}
+        {authError !== "" && <h6 className="text-danger">{authError}</h6>}
       </article>
     </>
   );

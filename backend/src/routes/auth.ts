@@ -90,17 +90,15 @@ authRouter.post(
   }
 );
 
-authRouter.post(
-  "/sign-out",
-  requireSession,
-  async (req, res): Promise<void> => {
+authRouter.post("/sign-out", async (req, res): Promise<void> => {
+  if (req.session) {
     req.session.destroy((error) => {
-      if (error !== null) console.log(error);
+      if (error !== null) console.debug(error);
     });
-    res.clearCookie("connect.sid");
-    res.status(200).json({ message: "Sign out successful" });
   }
-);
+  res.clearCookie("connect.sid");
+  res.status(200).json({ message: "Sign out successful" });
+});
 
 // Regenerate auth token
 authRouter.post("/get-token", requireSession, (req, res): void => {
@@ -109,9 +107,9 @@ authRouter.post("/get-token", requireSession, (req, res): void => {
   });
 });
 
-authRouter.get("/me", (req, res): void => {
-  let isValidSession = false;
-  if (req.session && req.session.id && req.session.username)
-    isValidSession = true;
-  res.status(200).json({ isValidSession });
+// Returns the username if the session is valid, otherwise returns an empty body
+authRouter.post("/check-session", (req, res): void => {
+  if (req.session && req.session.username) {
+    res.status(200).json({ username: req.session.username });
+  } else res.status(200).json({});
 });

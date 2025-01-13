@@ -107,3 +107,21 @@ describe("POST /auth/get-token", () => {
     expect(response.body.token).toBeDefined();
   });
 });
+
+describe("POST /auth/check-session", () => {
+  it("should return an empty response for an invalid session", async () => {
+    const response = await request(server).post("/auth/check-session");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({});
+  });
+
+  it("should return the user's username for a valid session", async () => {
+    const [agent, _] = await createTestSession();
+
+    const response: Response = await agent.post("/auth/check-session");
+    expect(response.status).toBe(200);
+    expect(response.body.username).toBe("testusername");
+
+    await agent.post("/auth/sign-out").expect(200);
+  });
+});
