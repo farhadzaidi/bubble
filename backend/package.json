@@ -2,7 +2,7 @@
   "name": "@bubble/backend",
   "type": "module",
   "scripts": {
-    "start": "nodemon --watch 'src/**/*,ts' --exec 'tsx' src/index.ts",
+    "start": "nodemon --watch 'src/**/*.ts' --exec 'tsx' src/index.ts",
     "test": "jest"
   },
   "dependencies": {

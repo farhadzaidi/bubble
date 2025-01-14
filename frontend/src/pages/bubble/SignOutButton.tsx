@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { apiPostRequest } from "../utils/api";
+import { apiPostRequest } from "../../utils/api";
 
 const styles = {
   container: {

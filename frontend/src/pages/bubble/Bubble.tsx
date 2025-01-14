@@ -1,4 +1,4 @@
-import { useValidSession } from "../utils/hooks";
+import { useValidSession } from "../../utils/hooks";
 
 import SignOutButton from "./SignOutButton";
 

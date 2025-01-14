@@ -1,8 +1,8 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { validateUsername, validatePassword } from "./validation";
-import { apiPostRequest } from "../utils/api";
-import { hashPassword } from "../utils/crypto";
+import { apiPostRequest } from "../../utils/api";
+import { hashPassword } from "../../utils/crypto";
 
 const SignUpForm = () => {
   const navigate = useNavigate();
@@ -89,61 +89,53 @@ const SignUpForm = () => {
   }, [password, confirmPassword]);
 
   return (
-    <>
-      <h3 className="primary-color text-center">Sign Up</h3>
-      <article>
-        <form onSubmit={handleSubmit}>
-          <fieldset>
-            <label>
-              Username
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={username}
-                onChange={handleUsernameChange}
-                aria-invalid={usernameError !== "" ? true : undefined}
-              />
-              {usernameError !== "" && <small>{usernameError}</small>}
-            </label>
+    <div className="container">
+      <h3 className="">Sign Up</h3>
+      <hr />
+      <form onSubmit={handleSubmit} className="stack-items">
+        <label htmlFor="username">Username</label>
+        <input
+          className="text-input"
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={username}
+          onChange={handleUsernameChange}
+          aria-invalid={usernameError !== "" ? true : undefined}
+        />
+        {usernameError !== "" && <small>{usernameError}</small>}
 
-            <label>
-              Password
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={password}
-                onChange={handlePasswordChange}
-                aria-invalid={passwordError !== "" ? true : undefined}
-              />
-              {passwordError !== "" && <small>{passwordError}</small>}
-            </label>
+        <label htmlFor="password">Password</label>
+        <input
+          className="text-input"
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={password}
+          onChange={handlePasswordChange}
+          aria-invalid={passwordError !== "" ? true : undefined}
+        />
+        {passwordError !== "" && <small>{passwordError}</small>}
 
-            <label>
-              Confirm Password
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={handleConfirmPasswordChange}
-                aria-invalid={confirmPasswordError != "" ? true : undefined}
-              />
-              {confirmPasswordError !== "" && (
-                <small>{confirmPasswordError}</small>
-              )}
-            </label>
+        <label htmlFor="confirmPassword">Confirm Password</label>
+        <input
+          className="text-input"
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={handleConfirmPasswordChange}
+          aria-invalid={confirmPasswordError != "" ? true : undefined}
+        />
+        {confirmPasswordError !== "" && <small>{confirmPasswordError}</small>}
 
-            <input type="submit" />
-          </fieldset>
-        </form>
+        <input type="submit" className="button" />
+      </form>
 
-        <small>
-          Already have an account? <a href="/sign-in">Sign in</a>
-        </small>
-      </article>
-    </>
+      <small>
+        Already have an account? <a href="/sign-in">Sign in</a>
+      </small>
+    </div>
   );
 };
 

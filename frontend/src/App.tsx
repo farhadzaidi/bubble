@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Bubble from "./bubble/Bubble";
-import SignIn from "./sign_in/SignIn";
-import SignUp from "./sign_up/SignUp";
-import PageNotFound from "./page_not_found/PageNotFound";
+import Bubble from "./pages/bubble/Bubble";
+import SignIn from "./pages/sign_in/SignIn";
+import SignUp from "./pages/sign_up/SignUp";
+import PageNotFound from "./pages/page_not_found/PageNotFound";
 
 function App() {
   return (
