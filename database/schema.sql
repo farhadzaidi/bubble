@@ -1,17 +1,19 @@
 
+USE bubble_dev;
+
 -- Tables
 
-CREATE TABLE Users (
+CREATE TABLE IF NOT EXISTS Users(
   username VARCHAR(16) PRIMARY KEY,
   password_hash VARCHAR(256) NOT NULL
 );
 
-CREATE TABLE Chats (
+CREATE TABLE IF NOT EXISTS Chats(
   chat_id VARCHAR(256) PRIMARY KEY,
   type ENUM('direct', 'group') NOT NULL DEFAULT 'direct'
 );
 
-CREATE TABLE Messages(
+CREATE TABLE IF NOT EXISTS Messages(
   message_id VARCHAR(64) PRIMARY KEY,
   chat_id VARCHAR(256) NOT NULL,
   sender VARCHAR(16) NOT NULL,
@@ -21,9 +23,9 @@ CREATE TABLE Messages(
   FOREIGN KEY (chat_id) REFERENCES Chats(chat_id)
 );
 
- --- Junction Tables
+-- Junction Tables
 
-CREATE TABLE MessageRecipients(
+CREATE TABLE IF NOT EXISTS MessageRecipients(
   message_id VARCHAR(64) NOT NULL,
   username VARCHAR(16) NOT NULL,
   PRIMARY KEY (message_id, username),
@@ -35,7 +37,7 @@ CREATE TABLE MessageRecipients(
     ON UPDATE CASCADE
  );
 
-CREATE TABLE UserChats (
+CREATE TABLE IF NOT EXISTS UserChats(
   username VARCHAR(16) NOT NULL,
   chat_id VARCHAR(256) NOT NULL,
   PRIMARY KEY (username, chat_id),
