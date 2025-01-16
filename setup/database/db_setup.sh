@@ -1,10 +1,9 @@
 #!/bin/bash
 
 # This script creates a mysql database on the local machine with the required
-# schema for the backend to work. It is only meant to be used for development
-# since production requires slightly different (secure) configuration.
-# Note: mysql is required to be installed on the system with a root password
-# and the script must be run from the 'database' directory.
+# schema for the backend to work. 
+# It should only be used for DEVELOPMENT
+# Note: mysql is required to be installed on the machine
 
 # The script creates the following if they don't already exist:
 #   - 'bubble_dev' database
