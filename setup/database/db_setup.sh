@@ -15,31 +15,15 @@
 # for testing
 
 #!/bin/bash
+source ../utils.sh
 
 # File paths
 META_FILE="./meta.sql"
 SCHEMA_FILE="./schema.sql"
 
-# Colors for output
-SUCCESS='\033[38;5;28m'
-ERROR='\033[38;5;196m'
-INFO='\033[38;5;32m'
-END='\033[0m'
-
-# Function to check if a file exists
-check_file_exists() {
-    if [[ ! -f "$1" ]]; then
-        echo -e "${ERROR}File '$1' not found.${END}"
-        exit 1
-    fi
-}
-
-# Check if required files exist
+# Create database and user
+echo -e "${INFO}Creating database and user... (root password required)${END}"
 check_file_exists "$META_FILE"
-check_file_exists "$SCHEMA_FILE"
-
-# Step 1: Create database and user
-echo -e "${INFO}Step 1: Creating database and user... (root password required)${END}"
 if mysql -u root -p < "$META_FILE"; then
     echo -e "${SUCCESS}Successfully created database and user.${END}"
 else
@@ -49,16 +33,17 @@ fi
 
 echo
 
-# Step 2: Create schema
-echo -e "${INFO}Step 2: Creating schema... (root password required)${END}"
+# Create schema
+echo -e "${INFO}Creating schema... (root password required)${END}"
+check_file_exists "$SCHEMA_FILE"
 if mysql -u root -p < "$SCHEMA_FILE"; then
-    echo -e "${SUCCESS}Successfully created schema.${NC}"
+    echo -e "${SUCCESS}Successfully created schema.${END}"
 else
-    echo -e "${ERROR}Failed to create schema.${NC}"
+    echo -e "${ERROR}Failed to create schema.${END}"
     exit 1
 fi
 
 echo
 
-echo -e "${SUCCESS}All tasks completed successfully!${END}"
-echo "${INFO}You can now connect using: mysql -u dev -p (Password: 'dev')${END}"
+echo -e "${SUCCESS}Database setup complete!${END}"
+echo -e "${INFO}You can now connect using: mysql -u dev -p (Password: 'dev')${END}"

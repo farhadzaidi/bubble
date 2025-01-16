@@ -1,0 +1,12 @@
+ENV=dev
+PORT=3000
+
+DATABASE_HOST=localhost
+DATABASE_USER=dev
+DATABASE_PASSWORD=dev
+DATABASE_NAME=bubble_dev
+
+JWT_SECRET=jwt_secret
+SESSION_SECRET=session_secret
+
+REDIS_URL=redis://localhost:6379
