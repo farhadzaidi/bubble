@@ -1,9 +1,12 @@
 #!/bin/bash
 
-# This script creates a mysql database on the local machine with the required
-# schema for the backend to work. 
-# It should only be used for DEVELOPMENT
-# Note: mysql is required to be installed on the machine
+# This script creates a mysql database on the local machine populated with the
+# required schema for the backend to work (mysql must be installed on the machine).
+# This is only meant to be used for DEVELOPMENT
+
+# Note: This script uses the mysql root password to authenticate the root user.
+# If you are using auth socket (sudo) to authenticate, you must remove the -p
+# flag on both commands and run the setup script with sudo.
 
 # The script creates the following if they don't already exist:
 #   - 'bubble_dev' database
@@ -35,7 +38,7 @@ echo
 # Create schema
 echo -e "${INFO}Creating schema... (root password required)${END}"
 check_file_exists "$SCHEMA_FILE"
-if mysql -u root -p < "$SCHEMA_FILE"; then
+if mysql -u root -p < "$SCHEMA_FILE"; then 
     echo -e "${SUCCESS}Successfully created schema.${END}"
 else
     echo -e "${ERROR}Failed to create schema.${END}"
