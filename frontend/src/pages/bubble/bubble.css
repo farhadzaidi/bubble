@@ -1,0 +1,128 @@
+.app {
+  display: flex;
+  border: 2px solid var(--secondary-color);
+  border-radius: 20px;
+  height: 80vh;
+  /* border: 2px solid blue; */
+}
+
+.chat-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  /* border: 2px solid yellow; */
+}
+
+/* Chat Log */
+
+.chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  width: 95%;
+  margin-block: 1rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* border: 2px solid purple; */
+}
+
+.no-messages {
+  align-self: center;
+  margin: auto;
+}
+
+.message {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sent-message {
+  align-self: flex-end;
+}
+
+.content {
+  border-radius: 10px;
+  padding: 0.5rem;
+  font-size: clamp(1rem, 1.25vw, 1.5rem);
+}
+
+.received-content {
+  background-color: var(--input-color);
+}
+
+.sent-content {
+  background-color: var(--primary-color);
+}
+
+.message-info {
+  font-size: 1rem;
+  margin-block: 0.25rem;
+}
+
+/* Send Message */
+
+.send-message {
+  display: flex;
+  background-color: var(--input-color);
+  width: 95%;
+  min-height: 4rem;
+  height: 10vh;
+  margin-bottom: 2rem;
+  border-radius: 10px;
+  /* border: 2px solid green; */
+}
+
+.send-message textarea {
+  flex: 1;
+  background-color: var(--input-color);
+  color: var(--secondary-color);
+  border-radius: 10px;
+  padding: 1rem;
+  border: none;
+  outline: none;
+  overflow-y: auto;
+  scrollbar-width: none;
+  resize: none;
+}
+
+.send-message button {
+  background-color: var(--input-color);
+  color: var(--secondary-color);
+  height: 3rem;
+  align-self: flex-end;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+  border: none;
+}
+
+.send-message button:hover {
+  cursor: pointer;
+  color: var(--primary-color);
+}
+
+/* Chat Preview */
+
+.chat-preview-list {
+  width: 30%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  border-right: 2px solid var(--secondary-color);
+  /* border: 2px solid red; */
+}
+
+.chat-preview {
+  padding: 1rem;
+  margin-inline: 0.5rem;
+  margin-top: 0.5rem;
+  border-bottom: 1px solid var(--secondary-color);
+}
+
+.chat-preview:hover {
+  cursor: pointer;
+  background-color: var(--secondary-color);
+  color: var(--background-color);
+  border-radius: 10px;
+}

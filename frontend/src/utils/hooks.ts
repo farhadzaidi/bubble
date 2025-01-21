@@ -17,7 +17,7 @@ export const useValidSession = (): [
     // Async wrapper
     (async () => {
       const username = await checkSession();
-      if (username === "") navigate("/sign-in"); // Session is invalid
+      if (username === "") navigate("/"); // Session is invalid
       else {
         setUsername(username);
         setIsValidSession(true);
@@ -39,7 +39,7 @@ export const useInvalidSession = (): boolean => {
     // Async wrapper
     (async () => {
       const username = await checkSession();
-      if (username !== "") navigate("/"); // Session is valid
+      if (username !== "") navigate("/chat"); // Session is valid
       else setIsValidSession(false);
     })();
   }, [navigate]);

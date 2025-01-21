@@ -29,7 +29,7 @@ export const createSessionStore = (): RequestHandler => {
       secure: process.env.ENV == "prod",
       httpOnly: true,
       sameSite: "strict",
-      maxAge: 1000 * 60 * 15, // 15 minute
+      // maxAge: 1000 * 60 * 15, // 15 minute
     },
   });
 };

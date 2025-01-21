@@ -13,6 +13,8 @@ export const validateUsername = (username: string): string => {
 };
 
 export const validatePassword = (password: string): string => {
+  if (password.length === 0) return "";
+
   if (password.length < 12) return "Password must be 12 characters or longer.";
 
   if (password.length > 256) return "Password must be 256 characters or less.";

@@ -1,0 +1,47 @@
+:root {
+  --primary-color: #0077d2;
+  --secondary-color: #c3c3c3;
+  --background-color: #0b0b12;
+  --danger-color: #c34343;
+  --input-color: #1b1b1d;
+  --button-hover-color: #008df9;
+}
+
+html {
+  scrollbar-width: none;
+  font-family: "Outfit", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  color: var(--secondary-color);
+  background-color: var(--background-color);
+  font-size: clamp(1rem, 4.5vw, 1.5rem);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+hr {
+  height: 2px;
+  background-color: var(--primary-color);
+  border: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: auto;
+}

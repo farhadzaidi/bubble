@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { apiPostRequest } from "../../utils/api";
 import { hashPassword } from "../../utils/crypto";
 import { useInvalidSession } from "../../utils/hooks";
+import "../../styles/form.css";
+import "./animation.css";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -11,6 +13,7 @@ function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [errorKey, setErrorKey] = useState(0); // Used to reanimate authError
 
   const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>): void => {
     e.preventDefault();
@@ -34,47 +37,52 @@ function SignIn() {
     if (response.ok) {
       sessionStorage.setItem("token", json.token);
       navigate("/");
-    } else setAuthError(json.error);
+    } else {
+      setAuthError(json.error);
+      setErrorKey((value) => value + 1);
+    }
   };
 
   return isValidSession ? null : (
-    <>
-      <h3 className="primary-color text-center">Sign In</h3>
-      <article>
+    <div className="container">
+      <h2 className="text-center">Sign In</h2>
+      <hr />
+      <div className="form-container">
         <form onSubmit={handleSubmit}>
-          <fieldset>
-            <label>
-              Username
-              <input
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={username}
-                onChange={handleUsernameChange}
-              />
-            </label>
+          <label htmlFor="username">
+            <small>Username</small>
+          </label>
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={username}
+            onChange={handleUsernameChange}
+          />
+          <label htmlFor="password">
+            <small>Password</small>
+          </label>
 
-            <label>
-              Password
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={password}
-                onChange={handlePasswordChange}
-              />
-            </label>
-            <input type="submit" />
-          </fieldset>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={password}
+            onChange={handlePasswordChange}
+          />
+
+          <button type="submit">Submit</button>
+          {authError !== "" && (
+            <p key={errorKey} className="danger text-center expand">
+              {authError}
+            </p>
+          )}
+          <small className="text-center">
+            Don't have an account? <a href="/sign-up">Sign Up</a>
+          </small>
         </form>
-
-        <small>
-          Don't have an account? <a href="/sign-up">Sign Up</a>
-        </small>
-
-        {authError !== "" && <h6 className="text-danger">{authError}</h6>}
-      </article>
-    </>
+      </div>
+    </div>
   );
 }
 
