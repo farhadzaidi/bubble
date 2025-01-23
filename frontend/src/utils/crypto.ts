@@ -8,6 +8,10 @@ export const hashPassword = async (password: string): Promise<string> => {
   const data = new TextEncoder().encode(password + salt);
   const hash = await crypto.subtle.digest("SHA-256", data);
 
+  console.log(Array.from(new Uint8Array(hash))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join(""));
+
   return Array.from(new Uint8Array(hash))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");

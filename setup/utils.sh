@@ -8,6 +8,6 @@ END='\033[0m'
 check_file_exists() {
     if [[ ! -f "$1" ]]; then
         echo -e "${ERROR}File '$1' not found.${END}"
-        exit 1
+        # exit 1
     fi
 }

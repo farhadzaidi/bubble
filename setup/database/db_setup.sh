@@ -6,7 +6,7 @@
 
 # Note: This script uses the mysql root password to authenticate the root user.
 # If you are using auth socket (sudo) to authenticate, you must remove the -p
-# flag on both commands and run the setup script with sudo.
+# flag on all commands and run the setup script with sudo.
 
 # The script creates the following if they don't already exist:
 #   - 'bubble_dev' database
@@ -17,35 +17,34 @@
 # for testing
 
 #!/bin/bash
-source ../utils.sh
+source ../utils.sh || exit 1
 
 # File paths
 META_FILE="./meta.sql"
 SCHEMA_FILE="./schema.sql"
+DATA_FILE="./data.sql"
 
-# Create database and user
-echo -e "${INFO}Creating database and user... (root password required)${END}"
-check_file_exists "$META_FILE"
-if mysql -u root -p < "$META_FILE"; then
-    echo -e "${SUCCESS}Successfully created database and user.${END}"
-else
-    echo -e "${ERROR}Failed to create database and user.${END}"
-    exit 1
-fi
-
-echo
-
-# Create schema
-echo -e "${INFO}Creating schema... (root password required)${END}"
+check_file_exists "$META_FILE" 
 check_file_exists "$SCHEMA_FILE"
-if mysql -u root -p < "$SCHEMA_FILE"; then 
-    echo -e "${SUCCESS}Successfully created schema.${END}"
-else
-    echo -e "${ERROR}Failed to create schema.${END}"
+check_file_exists "$DATA_FILE"
+
+# echo -e "\n${INFO}Creating database and user...${END}"
+# if !(mysql -u root -p < "$META_FILE"); then
+#     echo -e "${ERROR}Failed to create database and user from ${META_FILE}.${END}"
+#     exit 1
+# fi
+
+# echo -e "\n${INFO}Creating schema...${END}"
+# if !(mysql -u root -p < "$SCHEMA_FILE"); then
+#     echo -e "${ERROR}Failed to create schema from ${SCHEMA_FILE}.${END}"
+#     exit 1
+# fi
+
+echo -e "\n${INFO}Populating tables with dummy data...${END}"
+if !(mysql -u root -p < "$DATA_FILE"); then
+    echo -e "${ERROR}Failed to populate tables from ${DATA_FILE}.${END}"
     exit 1
 fi
 
-echo
-
-echo -e "${SUCCESS}Database setup complete!${END}"
-echo -e "${INFO}You can now connect using: mysql -u dev -p (Password: 'dev')${END}"
+echo -e "\n${SUCCESS}Database setup complete!${END}"
+echo -e "${INFO}You can now connect using: mysql -u dev -p (Password: 'dev')${END}\n"

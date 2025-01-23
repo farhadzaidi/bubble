@@ -8,16 +8,8 @@
 # Additionally, the script creates a .env with all the required environment
 # variables in the backend folder of the project
 
-. utils.sh
-
 cd database
-. db_setup.sh
-
-echo
+source db_setup.sh
 
 cd ../environment
-. env_setup.sh
-
-cd ..
-echo
-echo -e "${SUCCESS}Setup completed successfully!${END}"
+source env_setup.sh
