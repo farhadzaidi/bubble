@@ -7,7 +7,7 @@ ROUTE /auth
     - password
 
 ROUTE /chats
-  - GET get-chats-by-user (requireSession, requireAuthToken, authenticateUser)
+  - GET get-chats-by-user (requireSession, requireAuthToken, verifyUser)
     -username
 
 ROUTE /users
@@ -17,7 +17,7 @@ ROUTE /users
     - message_id
 
 ROUTE /messages
-  - get-messages-by-user (requireSession, requireAuthToken, authenticateUser)
+  - get-messages-by-user (requireSession, requireAuthToken, verifyUser)
     - username
   - get-messages-by-chat (requireSession, requireAuthToken)
     - chat_id

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Colors for output
 SUCCESS='\033[38;5;28m'
 ERROR='\033[38;5;196m'

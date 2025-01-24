@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   requireSession,
   requireAuthToken,
-  authenticateUser,
+  verifyUser,
   rejectIfSession,
 } from "../middleware";
 
@@ -22,7 +22,7 @@ mainRouter.get("/ping-with-token", requireAuthToken, (_req, res) => {
   res.status(200).json({ message: "pong" });
 });
 
-mainRouter.get("/ping-with-username", authenticateUser, (_req, res) => {
+mainRouter.get("/ping-with-username", verifyUser, (_req, res) => {
   res.status(200).json({ message: "pong" });
 });
 

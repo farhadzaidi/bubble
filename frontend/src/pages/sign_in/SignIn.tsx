@@ -1,6 +1,6 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiPostRequest } from "../../utils/api";
+import { makeApiCall } from "../../utils/api";
 import { hashPassword } from "../../utils/crypto";
 import { useInvalidSession } from "../../utils/hooks";
 import "../../styles/form.css";
@@ -28,9 +28,11 @@ function SignIn() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const hashedPassword = await hashPassword(password);
-    const response = await apiPostRequest("/auth/sign-in", {
-      username: username,
-      password: hashedPassword,
+    const response = await makeApiCall("POST", "/auth/sign-in", {
+      body: {
+        username: username,
+        password: hashedPassword,
+      },
     });
 
     const json = await response.json();

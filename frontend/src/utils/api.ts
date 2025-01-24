@@ -1,41 +1,68 @@
+import { assert } from "chai";
+
 const API_URL = "http://localhost:3000";
 
-// const PROTECTED_ENDPOINTS = [
-//   "chats/get-chats-by-user",
-//   "users/get-users-by-chat",
-//   "users/get-recipients-by-message",
-//   "messages/get-messages-by-user",
-//   "messages/get-messages-by-chat",
-// ];
-
-export const apiGetRequest = async (
+// This function serves as a wrapper over sendRequest in order to handle
+// the use of auth tokens
+export const makeApiCall = async (
+  method: string,
   endpoint: string,
-  queryParameters?: Record<string, string>
+  args?: {
+    queryParameters?: Record<string, string>;
+    body?: Record<string, string>;
+  }
 ): Promise<Response> => {
+  const response = await sendRequest(method, endpoint, args);
+  if (response.status === 401) {
+    const json = await response.clone().json();
+    if (json.error === "Invalid or expired auth token") {
+      sessionStorage.setItem("token", await fetchAuthToken());
+      return await sendRequest(method, endpoint, args);
+    }
+  }
+  return response;
+};
+
+const fetchAuthToken = async (): Promise<string> => {
+  const response = await sendRequest("POST", "/auth/get-token");
+  const json = await response.json();
+  return json.token;
+};
+
+const sendRequest = async (
+  method: string,
+  endpoint: string,
+  args?: {
+    queryParameters?: Record<string, string>;
+    body?: Record<string, string>;
+  }
+): Promise<Response> => {
+  // Validate request
+  method = method.toUpperCase();
+  assert(method === "GET" || method === "POST", `Invalid method '${method}'`);
+  if (method === "GET") assert(!args?.body, "GET request cannot have a body.");
+  if (method === "POST")
+    assert(!args?.queryParameters, "POST request cannot have query paramters.");
+
   const url = new URL(`${API_URL}${endpoint}`);
+  const options: any = { method: method, credentials: "include", headers: {} };
+
+  // Set auth token
+  options.headers["Authorization"] = `Bearer ${sessionStorage.getItem(
+    "token"
+  )}`;
 
   // Append query parameters to url if provided
-  if (queryParameters) {
-    Object.entries(queryParameters).forEach(([key, value]) => {
+  if (args?.queryParameters) {
+    Object.entries(args.queryParameters).forEach(([key, value]) => {
       url.searchParams.append(key, value);
     });
   }
 
-  const options: RequestInit = { method: "GET", credentials: "include" };
-  return await fetch(url, options);
-};
-
-export const apiPostRequest = async (
-  endpoint: string,
-  body?: Record<string, string>
-): Promise<Response> => {
-  const url = new URL(`${API_URL}${endpoint}`);
-  const options: any = { method: "POST", credentials: "include", headers: {} };
-
   // Include body if provided
-  if (body) {
+  if (args?.body) {
     options.headers["Content-Type"] = "application/json";
-    options.body = JSON.stringify(body);
+    options.body = JSON.stringify(args.body);
   }
 
   return await fetch(url, options as RequestInit);

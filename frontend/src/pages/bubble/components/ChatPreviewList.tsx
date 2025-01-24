@@ -1,45 +1,39 @@
+import { useEffect, useState } from "react";
+import { makeApiCall } from "../../../utils/api";
 import ChatPreview from "./ChatPreview";
 
-type ChatPreviews = {
-  chatId: string;
-  chatName: string;
-  numNewMessages: number;
-}[];
-const chatPreviews: ChatPreviews = [
-  { chatId: "12sdafas3", chatName: "test1", numNewMessages: 10 },
-  { chatId: "45sadfadsf6", chatName: "test2", numNewMessages: 0 },
-  { chatId: "78fasdfsadfds9", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fdsasfdaa89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "73fsadfasd89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fdasdfsdafsa89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fdafasdfs89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fsddasffasa89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fafsadfasdds89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "78ffadsfasdsad9", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fadfasasdfds89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fsfdasasasda89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fdsfdfasdfasa89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7ffadsfasdasd89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "78fsfdsafasdda9", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fsfasdfda89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "7fddsafadssa89", chatName: "test3", numNewMessages: 5 },
-  { chatId: "78fafasdfsd9", chatName: "test3", numNewMessages: 5 },
-  { chatId: "789fdfsadfasd", chatName: "test3", numNewMessages: 5 },
-  { chatId: "78fdafsdfassa9", chatName: "test3", numNewMessages: 5 },
-  { chatId: "78faasdfsafdsasd9", chatName: "test3", numNewMessages: 5 },
-];
+type Chat = {
+  chat_id: string;
+  chat_name: string;
+};
 
 function ChatPreviewList() {
+  const [chats, setChats] = useState<Chat[]>([]);
+
+  // Get chats
+  useEffect(() => {
+    (async () => {
+      let response = await makeApiCall("GET", "/chats/get-chats-by-user", {
+        queryParameters: {
+          username: sessionStorage.getItem("username") as string,
+        },
+      });
+      const json = await response.json();
+      setChats(json);
+    })();
+  }, []);
+
+  const MAX_LENGTH = Math.floor(window.innerWidth * 0.02);
+  console.log(MAX_LENGTH);
   return (
     <div className="chat-preview-list">
-      {chatPreviews.length === 0 && "You have no active chats"}
-      {chatPreviews.map(({ chatId, chatName, numNewMessages }) => {
+      {chats.map((chat) => {
+        let name = chat.chat_name;
+        if (name.length > MAX_LENGTH) {
+          name = name.slice(0, MAX_LENGTH - 3) + "...";
+        }
         return (
-          <ChatPreview
-            key={chatId}
-            chatName={chatName}
-            numNewMessages={numNewMessages}
-          />
+          <ChatPreview key={chat.chat_id} chatName={name} numNewMessages={0} />
         );
       })}
     </div>

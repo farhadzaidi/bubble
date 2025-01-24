@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { apiPostRequest } from "../../../utils/api";
+import { makeApiCall } from "../../../utils/api";
 
 function SignOutButton() {
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
-    await apiPostRequest("/auth/sign-out");
+    await makeApiCall("POST", "/auth/sign-out");
     sessionStorage.clear();
     navigate("/");
   };

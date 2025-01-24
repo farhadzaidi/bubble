@@ -2,7 +2,7 @@ import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useInvalidSession } from "../../utils/hooks";
 import { validateUsername, validatePassword } from "./validation";
-import { apiPostRequest } from "../../utils/api";
+import { makeApiCall } from "../../utils/api";
 import { hashPassword } from "../../utils/crypto";
 import "../../styles/form.css";
 
@@ -70,9 +70,11 @@ const SignUp = () => {
     if (isValidFormData) {
       // Password will be hashed server-side as well
       const hashedPassword = await hashPassword(password);
-      const response = await apiPostRequest("/auth/sign-up", {
-        username: username,
-        password: hashedPassword,
+      const response = await makeApiCall("POST", "/auth/sign-up", {
+        body: {
+          username: username,
+          password: hashedPassword,
+        },
       });
 
       const json = await response.json();

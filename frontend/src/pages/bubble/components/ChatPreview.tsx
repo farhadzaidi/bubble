@@ -6,7 +6,7 @@ type ChatProp = {
 function ChatPreview({ chatName, numNewMessages }: ChatProp) {
   return (
     <div className="chat-preview">
-      <h4 className="primary">{chatName}</h4>
+      <h5 className="primary">{chatName}</h5>
       <small>
         {numNewMessages === 0
           ? "No new messages"

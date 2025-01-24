@@ -1,0 +1,20 @@
+The 'setup.sh' script in this directory is used to setup the MySQL database
+and environment variables for DEVELOPMENT.
+
+You can run it with 'sudo ./setup.sh' in this directory.
+The script requires MySQL to be installed on your machine.
+Note: The database setup uses sudo for root user authentication, if you're
+using a separate root password, make sure to add the -p flag to each mysql
+command.
+
+The script will do the following:
+
+- Database Setup
+  - Create a 'bubble_dev' database on the local machine
+  - Create a user named 'dev' with full privileges to this database (password: dev)
+  - Create all the tables needed for the app to work
+  - Populate these tables with some dummy data for testing
+- Environment Setup
+  - Create a '.env' file with the required environment variables for the app to work
+
+Once again, this is only meant for use in DEVELOPMENT.

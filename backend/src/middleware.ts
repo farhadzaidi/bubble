@@ -47,7 +47,7 @@ export const requireAuthToken = (
 // For protected routes where information is requested by username
 // Ensures the session username matches the username provided in the query paramters
 // Assumes requireSession was already called
-export const authenticateUser = (
+export const verifyUser = (
   req: Request,
   res: Response,
   next: NextFunction

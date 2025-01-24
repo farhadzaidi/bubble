@@ -8,17 +8,19 @@ import "./bubble.css";
 
 function Bubble() {
   const [username, isValidSession] = useValidSession();
+  sessionStorage.setItem("username", username);
 
-  return !isValidSession ? null : (
-    // TODO: ChatInvite.tsx
-    <div className="container">
-      <SignOutButton />
-      <div className="app">
-        <ChatPreviewList />
-        <ChatArea />
+  if (isValidSession)
+    return !isValidSession ? null : (
+      // TODO: ChatInvite.tsx
+      <div className="container">
+        <SignOutButton />
+        <div className="app">
+          <ChatPreviewList />
+          <ChatArea />
+        </div>
       </div>
-    </div>
-  );
+    );
 }
 
 export default Bubble;

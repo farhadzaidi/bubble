@@ -64,7 +64,7 @@ describe("requireAuthToken middleware", () => {
   });
 });
 
-describe("authenticateUser middleware", () => {
+describe("verifyUser middleware", () => {
   it("should return an error for missing username in query", async () => {
     const response = await request(server).get("/main/ping-with-username");
     expect(response.status).toBe(403);
