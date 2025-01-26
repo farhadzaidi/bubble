@@ -1,6 +1,5 @@
 import { assert } from "chai";
-
-const API_URL = "http://localhost:3000";
+import { SERVER_URL } from "../constants";
 
 // This function serves as a wrapper over sendRequest in order to handle
 // the use of auth tokens
@@ -44,7 +43,7 @@ const sendRequest = async (
   if (method === "POST")
     assert(!args?.queryParameters, "POST request cannot have query paramters.");
 
-  const url = new URL(`${API_URL}${endpoint}`);
+  const url = new URL(`${SERVER_URL}${endpoint}`);
   const options: any = { method: method, credentials: "include", headers: {} };
 
   // Set auth token

@@ -2,19 +2,20 @@ import express from "express";
 import helmet from "helmet";
 import cors from "cors";
 
-import { createSessionStore } from "./session";
+import { sessionMiddleware } from "./session";
 import { logRequests } from "./middleware";
 
 import { authRouter } from "./routes/auth";
 import { mainRouter } from "./routes/main";
 import { chatsRouter } from "./routes/chats";
+import { messagesRouter } from "./routes/messages";
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(helmet());
-app.use(createSessionStore());
+app.use(sessionMiddleware);
 
 if (process.env.ENV === "dev") {
   app.use(logRequests);
@@ -30,5 +31,6 @@ if (process.env.ENV === "dev") {
 app.use("/auth", authRouter);
 app.use("/main", mainRouter);
 app.use("/chats", chatsRouter);
+app.use("/messages", messagesRouter);
 
 export default app;

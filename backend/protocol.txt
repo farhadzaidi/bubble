@@ -10,5 +10,4 @@ By default all messages disappear after 24 hours. This TTL can be changed.
   - The MESSAGE payload is forwarded to each recipient that is currently online
 
 *Clients will sort messages by timestamp before displaying
-*The server will periodically query the database for messages that have been expired and delete them from the database. If the corresponding
-clients are online, the server will send a DELETE payload to each of them with the ids of said messages
+*The server will periodically query the database for messages that have been expired and delete them from the database. If the corresponding clients are online, the server will send a DELETE payload to each of them with the ids of said messages

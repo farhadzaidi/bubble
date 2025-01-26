@@ -1,9 +1,11 @@
-import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useInvalidSession } from "../../utils/hooks";
 import { validateUsername, validatePassword } from "./validation";
 import { makeApiCall } from "../../utils/api";
 import { hashPassword } from "../../utils/crypto";
+
+import Logo from "../../components/Logo";
 import "../../styles/form.css";
 
 const SignUp = () => {
@@ -44,26 +46,32 @@ const SignUp = () => {
     return isValidFormData;
   };
 
-  const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>): void => {
+  const handleUsernameChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     e.preventDefault();
     setUsername(e.target.value);
     setUsernameError(validateUsername(e.target.value));
   };
 
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
+  const handlePasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     e.preventDefault();
     setPassword(e.target.value);
     setPasswordError(validatePassword(e.target.value));
   };
 
   const handleConfirmPasswordChange = (
-    e: ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     e.preventDefault();
     setConfirmPassword(e.target.value);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const isValidFormData = validateFormData(formData);
@@ -97,6 +105,7 @@ const SignUp = () => {
 
   return isValidSession ? null : (
     <div className="container">
+      <Logo />
       <h2 className="text-center">Sign Up</h2>
       <hr />
       <div className="form-container">
@@ -152,7 +161,7 @@ const SignUp = () => {
           )}
 
           <button type="submit">Submit</button>
-          <small>
+          <small className="text-center">
             Already have an account? <a href="/sign-in">Sign in</a>
           </small>
         </form>

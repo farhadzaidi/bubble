@@ -1,62 +1,49 @@
-const messages: {
-  messageId: string;
-  sender: string;
+import { useState, useEffect } from "react";
+import { makeApiCall } from "../../../utils/api";
+import { Socket } from "socket.io-client";
+
+type Message = {
   content: string;
-  timestamp: string;
-}[] = [
-    {
-      messageId: "fjhaljsdhflasd",
-      sender: "Friend",
-      content: "Hello!",
-      timestamp: "2:57 pm",
-    },
-    {
-      messageId: "fjhadljsdhflasd",
-      sender: "",
-      content: "Hi there",
-      timestamp: "2:58 pm",
-    },
-    {
-      messageId: "fjhaljsdhdflasd",
-      sender: "Friend",
-      content:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum praesentium alias fugit ullam quisquam, id doloribus. Nobis quasi ad dolore numquam fugit, deserunt eius minus sed laborum doloremque alias quaerat.",
-      timestamp: "2:58 pm",
-    },
-    {
-      messageId: "fjhaljsdashflasd",
-      sender: "Friend",
-      content:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum praesentium alias fugit ullam quisquam, id doloribus. Nobis quasi ad dolore numquam fugit, deserunt eius minus sed laborum doloremque alias quaerat.",
-      timestamp: "2:58 pm",
-    },
+  message_id: string;
+  sender: string;
+  sent_at: string;
+};
 
-    {
-      messageId: "fjhaljsdsfadhflasd",
-      sender: "",
-      content:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum praesentium alias fugit ullam quisquam, id doloribus. Nobis quasi ad dolore numquam fugit, deserunt eius minus sed laborum doloremque alias quaerat.",
-      timestamp: "2:59 pm",
-    },
-    {
-      messageId: "fjhalsadfjsdhflasd",
-      sender: "",
-      content:
-        "Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum praesentium alias fugit ullam quisquam, id doloribus. Nobis quasi ad dolore numquam fugit, deserunt eius minus sed laborum doloremque alias quaerat.",
-      timestamp: "2:59 pm",
-    },
-  ];
+type Props = {
+  chatId: string;
+  socket: Socket;
+};
 
-function ChatLog() {
+function ChatLog({ chatId, socket }: Props) {
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  // Get messages by chat
+  useEffect(() => {
+    (async () => {
+      let response = await makeApiCall(
+        "GET",
+        "/messages/get-messages-by-chat",
+        { queryParameters: { chatId } }
+      );
+      const json = await response.json();
+      setMessages(json);
+    })();
+  }, [chatId]);
+
+  // socket.on("message", (message) => {
+  //   setMessages([...messages, message]);
+  // });
+
   let prevSender: string | null = null;
 
   return (
+    // TODO: add loading animation messages haven't been loaded in yet
     <div className="chat-log">
       {messages.length === 0 && (
         <span className="no-messages">No Messages</span>
       )}
-      {messages.map(({ messageId, sender, content, timestamp }) => {
-        const isSent = sender === "";
+      {messages.map(({ content, message_id, sender, sent_at }) => {
+        const isSent = sender === sessionStorage.getItem("username");
         const sameSender = prevSender === sender;
         prevSender = sender;
 
@@ -64,7 +51,7 @@ function ChatLog() {
 
         return (
           <div
-            key={messageId}
+            key={message_id}
             className={`message ${isSent ? "sent" : "received"}-message`}
           >
             {!sameSender && <span className="message-info">{sender}</span>}

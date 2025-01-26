@@ -7,10 +7,14 @@ type Chat = {
   chat_name: string;
 };
 
-function ChatPreviewList() {
+type Props = {
+  setChatId: React.Dispatch<React.SetStateAction<string>>;
+};
+
+function ChatPreviewList({ setChatId }: Props) {
   const [chats, setChats] = useState<Chat[]>([]);
 
-  // Get chats
+  // Get chats by username
   useEffect(() => {
     (async () => {
       let response = await makeApiCall("GET", "/chats/get-chats-by-user", {
@@ -23,8 +27,8 @@ function ChatPreviewList() {
     })();
   }, []);
 
+  // TODO: make this dynamic
   const MAX_LENGTH = Math.floor(window.innerWidth * 0.02);
-  console.log(MAX_LENGTH);
   return (
     <div className="chat-preview-list">
       {chats.map((chat) => {
@@ -33,7 +37,13 @@ function ChatPreviewList() {
           name = name.slice(0, MAX_LENGTH - 3) + "...";
         }
         return (
-          <ChatPreview key={chat.chat_id} chatName={name} numNewMessages={0} />
+          <ChatPreview
+            key={chat.chat_id}
+            chatId={chat.chat_id}
+            chatName={name}
+            numNewMessages={0}
+            setChatId={setChatId}
+          />
         );
       })}
     </div>

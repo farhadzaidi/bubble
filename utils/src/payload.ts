@@ -44,12 +44,3 @@ export class DeletePayload extends Payload {
     this.messagePayloadIds = messagePayloadIds;
   }
 }
-
-export class StateSyncPayload extends Payload {
-  messagePayloads: MessagePayload[];
-
-  constructor(messagePayloads: MessagePayload[]) {
-    super("STATE_SYNC");
-    this.messagePayloads = messagePayloads;
-  }
-}

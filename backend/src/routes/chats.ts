@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import { RowDataPacket } from "mysql2";
 import { database } from "../database";
 import { requireSession, requireAuthToken, verifyUser } from "../middleware";

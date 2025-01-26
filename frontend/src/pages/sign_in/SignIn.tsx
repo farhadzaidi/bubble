@@ -1,8 +1,9 @@
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { makeApiCall } from "../../utils/api";
 import { hashPassword } from "../../utils/crypto";
 import { useInvalidSession } from "../../utils/hooks";
+import Logo from "../../components/Logo";
 import "../../styles/form.css";
 import "./animation.css";
 
@@ -15,17 +16,21 @@ function SignIn() {
   const [authError, setAuthError] = useState("");
   const [errorKey, setErrorKey] = useState(0); // Used to reanimate authError
 
-  const handleUsernameChange = (e: ChangeEvent<HTMLInputElement>): void => {
+  const handleUsernameChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     e.preventDefault();
     setUsername(e.target.value);
   };
 
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>): void => {
+  const handlePasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     e.preventDefault();
     setPassword(e.target.value);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const hashedPassword = await hashPassword(password);
     const response = await makeApiCall("POST", "/auth/sign-in", {
@@ -47,6 +52,7 @@ function SignIn() {
 
   return isValidSession ? null : (
     <div className="container">
+      <Logo />
       <h2 className="text-center">Sign In</h2>
       <hr />
       <div className="form-container">

@@ -1,12 +1,11 @@
-import { Server } from "socket.io";
-import { createServer } from "http";
+import { server } from "./server";
+import { createChatServer } from "./chat";
 import { createDatabaseConnection } from "./database";
-import app from "./app";
+
+createChatServer();
+await createDatabaseConnection();
 
 const port = Number(process.env.PORT);
-const server = createServer(app);
-export const io = new Server(server);
-await createDatabaseConnection();
 server.listen(port, () => {
   console.log(`Server running on port ${port}...`);
 });
