@@ -7,10 +7,10 @@ export let database: Connection;
 
 export const createDatabaseConnection = async (): Promise<void> => {
   database = await createConnection({
-    host: process.env.DATABASE_HOST,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_NAME,
+    host: process.env.DATABASE_HOST || "localhost",
+    user: process.env.DATABASE_USER || "dev",
+    password: process.env.DATABASE_PASSWORD || "dev",
+    database: process.env.DATABASE_NAME || "bubble_dev",
   });
 
   await database.connect();

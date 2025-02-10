@@ -9,10 +9,17 @@ DROP TABLE IF EXISTS Chats;
 
 -- Tables
 
+-- CREATE TABLE Users(
+--   username VARCHAR(16) PRIMARY KEY,
+--   password_hash VARCHAR(256) NOT NULL
+-- );
+
 CREATE TABLE Users(
   username VARCHAR(16) PRIMARY KEY,
-  password_hash VARCHAR(256) NOT NULL
+  public_key VARCHAR(64) NOT NULL,
+  salt VARCHAR(32) NOT NULL
 );
+
 
 CREATE TABLE Chats(
   chat_id VARCHAR(256) PRIMARY KEY,

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { makeApiCall } from "../../utils/api";
-import { hashPassword } from "../../utils/crypto";
 import { useInvalidSession } from "../../utils/hooks";
 import Logo from "../../components/Logo";
 import "../../styles/form.css";
 import "./animation.css";
+import { signChallenge } from "../../utils/crypto";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -30,21 +30,51 @@ function SignIn() {
     setPassword(e.target.value);
   };
 
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   const hashedPassword = await hashPassword(password);
+  //   const response = await makeApiCall("POST", "/auth/sign-in", {
+  //     body: {
+  //       username: username,
+  //       password: hashedPassword,
+  //     },
+  //   });
+
+  //   const json = await response.json();
+  //   if (response.ok) {
+  //     sessionStorage.setItem("token", json.token);
+  //     navigate("/");
+  //   } else {
+  //     setAuthError(json.error);
+  //     setErrorKey((value) => value + 1);
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const hashedPassword = await hashPassword(password);
-    const response = await makeApiCall("POST", "/auth/sign-in", {
-      body: {
-        username: username,
-        password: hashedPassword,
-      },
+    let isValid = false;
+    let response = await makeApiCall("POST", "/auth/request-challenge", {
+      body: { username },
     });
 
-    const json = await response.json();
+    let json = await response.json();
     if (response.ok) {
-      sessionStorage.setItem("token", json.token);
-      navigate("/");
-    } else {
+      // Sign challenge using private key and send back to the server
+      const signature = signChallenge(json.challenge, password, json.salt);
+      console.log(`Created signature: ${signature}`);
+      response = await makeApiCall("POST", "/auth/verify-challenge", {
+        body: { username, signature },
+      });
+
+      json = await response.json();
+      if (response.ok) {
+        isValid = true;
+        sessionStorage.setItem("token", json.token);
+        navigate("/");
+      }
+    }
+
+    if (!isValid) {
       setAuthError(json.error);
       setErrorKey((value) => value + 1);
     }

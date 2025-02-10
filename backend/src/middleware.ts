@@ -34,7 +34,8 @@ export const requireAuthToken = (
   // Ensure JWT is valid
   const token = authHeader.split(" ")[1];
   let isValidToken = true;
-  jwt.verify(token, process.env.JWT_SECRET as string, (error) => {
+  const secret = process.env.JWT_SECRET || "jwt_secret";
+  jwt.verify(token, secret, (error) => {
     if (error) {
       isValidToken = false;
       res.status(401).json({ error: "Invalid or expired auth token" });

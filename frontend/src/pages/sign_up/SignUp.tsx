@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useInvalidSession } from "../../utils/hooks";
 import { validateUsername, validatePassword } from "./validation";
 import { makeApiCall } from "../../utils/api";
-import { hashPassword } from "../../utils/crypto";
+import { generateAuthPublicKey } from "../../utils/crypto";
 
 import Logo from "../../components/Logo";
 import "../../styles/form.css";
@@ -69,6 +69,31 @@ const SignUp = () => {
     setConfirmPassword(e.target.value);
   };
 
+  // const handleSubmit = async (
+  //   e: React.FormEvent<HTMLFormElement>
+  // ): Promise<void> => {
+  //   e.preventDefault();
+  //   const formData = new FormData(e.currentTarget);
+  //   const isValidFormData = validateFormData(formData);
+  //   if (isValidFormData) {
+  //     // Password will be hashed server-side as well
+  //     const hashedPassword = await hashPassword(password);
+  //     const response = await makeApiCall("POST", "/auth/sign-up", {
+  //       body: {
+  //         username: username,
+  //         password: hashedPassword,
+  //       },
+  //     });
+
+  //     const json = await response.json();
+  //     if (response.ok) {
+  //       sessionStorage.setItem("username", username);
+  //       sessionStorage.setItem("token", json.token);
+  //       navigate("/");
+  //     } else setUsernameError("Username already exists"); // Only possible error
+  //   }
+  // };
+
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
@@ -76,13 +101,10 @@ const SignUp = () => {
     const formData = new FormData(e.currentTarget);
     const isValidFormData = validateFormData(formData);
     if (isValidFormData) {
-      // Password will be hashed server-side as well
-      const hashedPassword = await hashPassword(password);
+      // TODO: Loading...
+      const { salt, publicKey } = generateAuthPublicKey(password);
       const response = await makeApiCall("POST", "/auth/sign-up", {
-        body: {
-          username: username,
-          password: hashedPassword,
-        },
+        body: { username, salt, publicKey },
       });
 
       const json = await response.json();

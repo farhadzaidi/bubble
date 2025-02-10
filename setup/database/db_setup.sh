@@ -23,11 +23,11 @@ if !(mysql -u root < "$SCHEMA_FILE"); then
     exit 1
 fi
 
-echo -e "\n${INFO}Populating tables with dummy data...${END}"
-if !(mysql -u root < "$DATA_FILE"); then
-    echo -e "${ERROR}Failed to populate tables from ${DATA_FILE}.${END}"
-    exit 1
-fi
+# echo -e "\n${INFO}Populating tables with dummy data...${END}"
+# if !(mysql -u root < "$DATA_FILE"); then
+#     echo -e "${ERROR}Failed to populate tables from ${DATA_FILE}.${END}"
+#     exit 1
+# fi
 
 echo -e "\n${SUCCESS}Database setup complete!${END}"
 echo -e "${INFO}You can now connect using: mysql -u dev -p (Password: 'dev')${END}\n"

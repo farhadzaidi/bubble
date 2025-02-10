@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(helmet());
 app.use(sessionMiddleware);
 
-if (process.env.ENV === "dev") {
+if (process.env.ENV !== "prod") {
   app.use(logRequests);
   app.use(
     cors({
