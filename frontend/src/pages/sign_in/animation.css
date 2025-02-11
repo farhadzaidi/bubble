@@ -1,5 +1,9 @@
 /* Authentication error animation */
 
+.expand {
+  animation: expand 0.2s ease-in-out;
+}
+
 @keyframes expand {
   0% {
     transform: scale(1);
@@ -10,8 +14,4 @@
   100% {
     transform: scale(1);
   }
-}
-
-.expand {
-  animation: expand 0.2s ease-in-out;
 }

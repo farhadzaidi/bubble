@@ -48,11 +48,7 @@ authRouter.post(
       "publicKey",
       result[0].public_key
     );
-    redis.expire(`challenge:${username}`, 30);
-
-    console.log(`Challenge created for ${username}: ${challenge}`);
-    console.log(`Using public key: ${result[0].public_key}`);
-
+    redis.expire(`challenge:${username}`, 5);
     res.status(200).json({ salt: result[0].salt, challenge: challenge });
   }
 );
@@ -78,73 +74,13 @@ authRouter.post(
     );
 
     if (isValid) {
-      console.log("Login Successful");
+      regenerateSessionandIssueToken(req, res, username);
       return;
-    } else {
-      console.log("Verification Failed.");
     }
 
     res.status(401).json({ error: "Invalid credentials" });
   }
 );
-
-// Authenticate user credentials
-// authRouter.post(
-//   "/sign-in",
-//   rejectIfSession,
-//   async (req, res): Promise<void> => {
-//     const username: string = req.body.username;
-//     const password: string = req.body.password;
-
-//     // Check if username exists in the database
-//     let query = `SELECT username, password_hash FROM Users WHERE username=?;`;
-//     const [result] = await database.query<RowDataPacket[]>(query, [username]);
-
-//     if (result.length === 0) {
-//       res.status(401).json({ error: "Invalid credentials" });
-//       return;
-//     }
-
-//     // Compare password to hash
-//     const passwordHash = result[0].password_hash;
-//     const isMatch = await bcrypt.compare(password, passwordHash);
-//     if (!isMatch) {
-//       res.status(401).json({ error: "Invalid credentials" });
-//       return;
-//     }
-
-//     // Success
-//     regenerateSessionandIssueToken(req, res, username);
-//   }
-// );
-
-// Create a new user in the database
-// authRouter.post(
-//   "/sign-up",
-//   rejectIfSession,
-//   async (req, res): Promise<void> => {
-//     const username: string = req.body.username;
-//     const password: string = req.body.password;
-
-//     // Check if username is available
-//     let query = `SELECT username FROM Users WHERE username=?;`;
-//     const [result] = await database.query<RowDataPacket[]>(query, [username]);
-//     if (result.length > 0) {
-//       res.status(409).json({
-//         error: "Username already exists",
-//       });
-//       return;
-//     }
-
-//     // Store username and hashed password in the database
-//     const passwordHash = await bcrypt.hash(password, 11);
-//     query = `INSERT into Users (username, password_hash) values (?, ?);`;
-//     await database.query(query, [username, passwordHash]);
-
-//     // Success
-//     regenerateSessionandIssueToken(req, res, username);
-//   }
-// );
 
 authRouter.post(
   "/sign-up",

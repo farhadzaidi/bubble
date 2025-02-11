@@ -6,11 +6,14 @@ import { makeApiCall } from "../../utils/api";
 import { generateAuthPublicKey } from "../../utils/crypto";
 
 import Logo from "../../components/Logo";
+import Loading from "../../components/Loading";
 import "../../styles/form.css";
 
 const SignUp = () => {
   const navigate = useNavigate();
   const isValidSession = useInvalidSession();
+
+  const [loading, setLoading] = useState(false);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -50,58 +53,40 @@ const SignUp = () => {
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     e.preventDefault();
-    setUsername(e.target.value);
-    setUsernameError(validateUsername(e.target.value));
+    if (!loading) {
+      setUsername(e.target.value);
+      setUsernameError(validateUsername(e.target.value));
+    }
   };
 
   const handlePasswordChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     e.preventDefault();
-    setPassword(e.target.value);
-    setPasswordError(validatePassword(e.target.value));
+    if (!loading) {
+      setPassword(e.target.value);
+      setPasswordError(validatePassword(e.target.value));
+    }
   };
 
   const handleConfirmPasswordChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     e.preventDefault();
-    setConfirmPassword(e.target.value);
+    if (!loading) {
+      setConfirmPassword(e.target.value);
+    }
   };
-
-  // const handleSubmit = async (
-  //   e: React.FormEvent<HTMLFormElement>
-  // ): Promise<void> => {
-  //   e.preventDefault();
-  //   const formData = new FormData(e.currentTarget);
-  //   const isValidFormData = validateFormData(formData);
-  //   if (isValidFormData) {
-  //     // Password will be hashed server-side as well
-  //     const hashedPassword = await hashPassword(password);
-  //     const response = await makeApiCall("POST", "/auth/sign-up", {
-  //       body: {
-  //         username: username,
-  //         password: hashedPassword,
-  //       },
-  //     });
-
-  //     const json = await response.json();
-  //     if (response.ok) {
-  //       sessionStorage.setItem("username", username);
-  //       sessionStorage.setItem("token", json.token);
-  //       navigate("/");
-  //     } else setUsernameError("Username already exists"); // Only possible error
-  //   }
-  // };
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
+    setLoading(true);
+
     const formData = new FormData(e.currentTarget);
     const isValidFormData = validateFormData(formData);
     if (isValidFormData) {
-      // TODO: Loading...
       const { salt, publicKey } = generateAuthPublicKey(password);
       const response = await makeApiCall("POST", "/auth/sign-up", {
         body: { username, salt, publicKey },
@@ -113,6 +98,8 @@ const SignUp = () => {
         sessionStorage.setItem("token", json.token);
         navigate("/");
       } else setUsernameError("Username already exists"); // Only possible error
+
+      setLoading(false);
     }
   };
 

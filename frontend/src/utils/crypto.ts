@@ -37,7 +37,6 @@ export const signChallenge = (
 ) => {
   const seed = generateSeed(password, sodium.from_hex(salt));
   const keyPair = sodium.crypto_sign_seed_keypair(seed);
-  console.log(`Private Key: ${sodium.to_hex(keyPair.privateKey)}`);
   const signature = sodium.crypto_sign_detached(
     sodium.from_hex(challenge),
     keyPair.privateKey

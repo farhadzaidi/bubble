@@ -15,28 +15,16 @@ export const createChallenge = (): string => {
   return crypto.randomBytes(32).toString("hex");
 };
 
-// Helper function to convert hex-encoded public key into a KeyObject
-const ed25519HexToPem = (publicKey: string): string => {
+// Converts Ed25519 hex-encoded public key to a crypto.KeyObject so that it can
+// be used for verifying signaturess
+const createPublicKey = (publicKey: string): crypto.KeyObject => {
   const publicKeyBytes = Buffer.from(publicKey, "hex");
-  const asn1Prefix = Buffer.from([
-    0x30,
-    0x2a, // SEQUENCE
-    0x30,
-    0x05, // SEQUENCE (Algorithm Identifier)
-    0x06,
-    0x03,
-    0x2b,
-    0x65,
-    0x70, // OID 1.3.101.112 (Ed25519)
-    0x03,
-    0x21,
-    0x00, // BIT STRING (Public Key Data)
-  ]);
-
-  const derBuffer = Buffer.concat([asn1Prefix, publicKeyBytes]);
-  const base64Encoded = derBuffer.toString("base64");
-  const formattedBase64 = (base64Encoded.match(/.{1,64}/g) ?? []).join("\n");
-  return `-----BEGIN PUBLIC KEY-----\n${formattedBase64}\n-----END PUBLIC KEY-----`;
+  const spkiHeader = Buffer.from("302a300506032b6570032100", "hex");
+  return crypto.createPublicKey({
+    key: Buffer.concat([spkiHeader, publicKeyBytes]),
+    format: "der",
+    type: "spki",
+  });
 };
 
 export const verifyChallenge = (
@@ -44,12 +32,8 @@ export const verifyChallenge = (
   signature: string,
   publicKey: string
 ): boolean => {
-  console.log(
-    `Verifying...\nchallenge: ${challenge}\npublicKey: ${publicKey}\n`
-  );
   const challengeBytes = Buffer.from(challenge, "hex");
   const signatureBytes = Buffer.from(signature, "hex");
-  const publicKeyPem = ed25519HexToPem(publicKey);
-
-  return crypto.verify(null, challengeBytes, publicKeyPem, signatureBytes);
+  const publicKeyObject = createPublicKey(publicKey);
+  return crypto.verify(null, challengeBytes, publicKeyObject, signatureBytes);
 };

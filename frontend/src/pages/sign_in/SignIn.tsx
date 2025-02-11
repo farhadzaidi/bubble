@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { makeApiCall } from "../../utils/api";
 import { useInvalidSession } from "../../utils/hooks";
+import { makeApiCall } from "../../utils/api";
+import { signChallenge } from "../../utils/crypto";
 import Logo from "../../components/Logo";
+import Loading from "../../components/Loading";
 import "../../styles/form.css";
 import "./animation.css";
-import { signChallenge } from "../../utils/crypto";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -15,43 +16,28 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
   const [errorKey, setErrorKey] = useState(0); // Used to reanimate authError
+  const [loading, setLoading] = useState(false); // Used to animate loading spinner
 
   const handleUsernameChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     e.preventDefault();
-    setUsername(e.target.value);
+    const usernameInput = e.target.value;
+    if (!loading && usernameInput.length <= 16) setUsername(e.target.value);
   };
 
   const handlePasswordChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     e.preventDefault();
-    setPassword(e.target.value);
+    const passwordInput = e.target.value;
+    if (!loading && passwordInput.length <= 256) setPassword(e.target.value);
   };
-
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   const hashedPassword = await hashPassword(password);
-  //   const response = await makeApiCall("POST", "/auth/sign-in", {
-  //     body: {
-  //       username: username,
-  //       password: hashedPassword,
-  //     },
-  //   });
-
-  //   const json = await response.json();
-  //   if (response.ok) {
-  //     sessionStorage.setItem("token", json.token);
-  //     navigate("/");
-  //   } else {
-  //     setAuthError(json.error);
-  //     setErrorKey((value) => value + 1);
-  //   }
-  // };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setLoading(true);
     let isValid = false;
     let response = await makeApiCall("POST", "/auth/request-challenge", {
       body: { username },
@@ -61,13 +47,13 @@ function SignIn() {
     if (response.ok) {
       // Sign challenge using private key and send back to the server
       const signature = signChallenge(json.challenge, password, json.salt);
-      console.log(`Created signature: ${signature}`);
       response = await makeApiCall("POST", "/auth/verify-challenge", {
         body: { username, signature },
       });
 
       json = await response.json();
       if (response.ok) {
+        for (let i = 0; i < 1000000000; i++) {}
         isValid = true;
         sessionStorage.setItem("token", json.token);
         navigate("/");
@@ -78,6 +64,8 @@ function SignIn() {
       setAuthError(json.error);
       setErrorKey((value) => value + 1);
     }
+
+    setLoading(false);
   };
 
   return isValidSession ? null : (
@@ -109,12 +97,20 @@ function SignIn() {
             onChange={handlePasswordChange}
           />
 
-          <button type="submit">Submit</button>
+          {loading ? (
+            <div className="text-center">
+              <Loading />
+            </div>
+          ) : (
+            <button type="submit">Submit</button>
+          )}
+
           {authError !== "" && (
             <p key={errorKey} className="danger text-center expand">
               {authError}
             </p>
           )}
+
           <small className="text-center">
             Don't have an account? <a href="/sign-up">Sign Up</a>
           </small>

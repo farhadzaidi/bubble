@@ -15,21 +15,21 @@ export const validateUsername = (username: string): string => {
 export const validatePassword = (password: string): string => {
   if (password.length === 0) return "";
 
-  // if (password.length < 12) return "Password must be 12 characters or longer.";
+  if (password.length < 12) return "Password must be 12 characters or longer.";
 
-  // if (password.length > 256) return "Password must be 256 characters or less.";
+  if (password.length > 256) return "Password must be 256 characters or less.";
 
-  // if (!/[a-z]/.test(password))
-  //   return "Password must include at least one lowercase letter";
+  if (!/[a-z]/.test(password))
+    return "Password must include at least one lowercase letter";
 
-  // if (!/[A-Z]/.test(password))
-  //   return "Password must include at least one uppercase letter";
+  if (!/[A-Z]/.test(password))
+    return "Password must include at least one uppercase letter";
 
-  // if (!/[0-9]/.test(password))
-  //   return "Password must include at least one digit";
+  if (!/[0-9]/.test(password))
+    return "Password must include at least one digit";
 
-  // if (!/[@#$%^&*(),.?":{}|<>]/.test(password))
-  //   return "Password must include at least one special character";
+  if (!/[@#$%^&*(),.?":{}|<>]/.test(password))
+    return "Password must include at least one special character";
 
   return "";
 };
