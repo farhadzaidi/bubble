@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useInvalidSession } from "../../utils/hooks";
 import { validateUsername, validatePassword } from "./validation";
 import { makeApiCall } from "../../utils/api";
-import { generateAuthPublicKey } from "../../utils/crypto";
+import { generatePublicKeys } from "../../utils/crypto";
+import { connectToLedgerDatabase } from "../../utils/ledger";
 
 import Logo from "../../components/Logo";
 import Loading from "../../components/Loading";
@@ -23,83 +24,88 @@ const SignUp = () => {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
-  // Helper function to ensure form data is not empty on submit and set error
-  // message(s) accordingly
-  const validateFormData = (formData: FormData) => {
-    let isValidFormData = true;
-
-    const username = formData.get("username") as string;
-    if (username === "") {
-      setUsernameError("Username cannot be empty.");
-      isValidFormData = false;
-    }
-
-    const password = formData.get("password") as string;
-    if (password === "") {
-      setPasswordError("Password cannot be empty.");
-      isValidFormData = false;
-    }
-
-    const confirmPassword = formData.get("confirmPassword") as string;
-    if (confirmPassword === "") {
-      setConfirmPasswordError("Please confirm the password.");
-      isValidFormData = false;
-    }
-
-    return isValidFormData;
-  };
-
   const handleUsernameChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     e.preventDefault();
-    if (!loading) {
-      setUsername(e.target.value);
-      setUsernameError(validateUsername(e.target.value));
-    }
+    setUsername(e.target.value);
+    setUsernameError(validateUsername(e.target.value));
   };
 
   const handlePasswordChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     e.preventDefault();
-    if (!loading) {
-      setPassword(e.target.value);
-      setPasswordError(validatePassword(e.target.value));
-    }
+    setPassword(e.target.value);
+    setPasswordError(validatePassword(e.target.value));
   };
 
   const handleConfirmPasswordChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ): void => {
     e.preventDefault();
-    if (!loading) {
-      setConfirmPassword(e.target.value);
-    }
+    setConfirmPassword(e.target.value);
   };
 
   const handleSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
-    setLoading(true);
 
+    // TODO: implement loading spinner (not working for some reason)
+
+    // Validate fields and set errors accordingly
     const formData = new FormData(e.currentTarget);
-    const isValidFormData = validateFormData(formData);
+    let hasEmptyFields = false;
+
+    const formUsername = formData.get("username") as string;
+    if (formUsername === "") {
+      setUsernameError("Username cannot be empty.");
+      hasEmptyFields = true;
+    }
+
+    const formPassword = formData.get("password") as string;
+    if (formPassword === "") {
+      setPasswordError("Password cannot be empty.");
+      hasEmptyFields = true;
+    }
+
+    const formConfirmPassword = formData.get("confirmPassword") as string;
+    if (formConfirmPassword === "") {
+      setConfirmPasswordError("Please confirm the password.");
+      hasEmptyFields = true;
+    }
+
+    const isValidFormData =
+      !hasEmptyFields &&
+      usernameError === "" &&
+      passwordError === "" &&
+      confirmPasswordError === "";
+
+    // Only send request to API if the fields are valid
     if (isValidFormData) {
-      const { salt, publicKey } = generateAuthPublicKey(password);
+      const publicKeys = generatePublicKeys(password);
+
+      // Hit sign up and submit credentials to the server
+      // The server will store the salt and auth public key in the database,
+      // alongside the username
       const response = await makeApiCall("POST", "/auth/sign-up", {
-        body: { username, salt, publicKey },
+        body: {
+          username: formUsername,
+          salt: publicKeys.salt,
+          publicKey: publicKeys.authPublicKey,
+        },
       });
 
       const json = await response.json();
       if (response.ok) {
-        sessionStorage.setItem("username", username);
+        // Submit messaging public key to the ledger
+        const conn = await connectToLedgerDatabase();
+
+        sessionStorage.setItem("username", formUsername);
         sessionStorage.setItem("token", json.token);
         navigate("/");
-      } else setUsernameError("Username already exists"); // Only possible error
-
-      setLoading(false);
+      } else setUsernameError("Username already exists."); // Only possible error
     }
   };
 
@@ -169,7 +175,14 @@ const SignUp = () => {
             <small className="danger">{confirmPasswordError}</small>
           )}
 
-          <button type="submit">Submit</button>
+          {loading ? (
+            <div className="text-center">
+              <Loading />
+            </div>
+          ) : (
+            <button type="submit">Submit</button>
+          )}
+
           <small className="text-center">
             Already have an account? <a href="/sign-in">Sign in</a>
           </small>

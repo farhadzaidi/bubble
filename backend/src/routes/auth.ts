@@ -90,18 +90,18 @@ authRouter.post(
     const salt: string = req.body.salt;
     const publicKey: string = req.body.publicKey;
 
+    // TODO: server-side field validations
+
     // Check if username is available
     let query = `SELECT username FROM Users WHERE username=?;`;
     const [result] = await database.query<RowDataPacket[]>(query, [username]);
     if (result.length > 0) {
-      res.status(409).json({
-        error: "Username already exists",
-      });
+      res.status(409).json({ error: "Username already exists" });
       return;
     }
 
     // Store record in the database
-    query = `INSERT into Users (username, salt, public_key) values (?, ?, ?);`;
+    query = `INSERT INTO Users (username, salt, public_key) values (?, ?, ?);`;
     await database.query(query, [username, salt, publicKey]);
 
     // Success

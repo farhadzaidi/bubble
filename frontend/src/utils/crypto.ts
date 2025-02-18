@@ -14,18 +14,23 @@ const generateSeed = (password: string, salt: Uint8Array): Uint8Array => {
   );
 };
 
-// Use Ed25519 to generate a public key
-export const generateAuthPublicKey = (
+// Use Ed25519 and X25519 to generate authentication and messaging public keys, respectively.
+export const generatePublicKeys = (
   password: string
-): { salt: string; publicKey: string } => {
+): { salt: string; authPublicKey: string; messagingPublicKey: string } => {
+  // Generate seed with password and salt using KDF
   const salt = sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES);
   const seed = generateSeed(password, salt);
-  const keyPair = sodium.crypto_sign_seed_keypair(seed);
 
-  // Only need to return public key and salt on sign up
+  // Generate key pairs
+  const authKeyPair = sodium.crypto_sign_seed_keypair(seed);
+  const messagingKeyPair = sodium.crypto_box_seed_keypair(seed);
+
+  // Only need to return salt and public keys on sign up
   return {
     salt: sodium.to_hex(salt),
-    publicKey: sodium.to_hex(keyPair.publicKey),
+    authPublicKey: sodium.to_hex(authKeyPair.publicKey),
+    messagingPublicKey: sodium.to_hex(messagingKeyPair.publicKey),
   };
 };
 

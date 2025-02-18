@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -10,6 +11,7 @@ import { mainRouter } from "./routes/main";
 import { chatsRouter } from "./routes/chats";
 import { messagesRouter } from "./routes/messages";
 
+dotenv.config();
 const app = express();
 
 // Middleware

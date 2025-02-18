@@ -23,7 +23,7 @@ function SignIn() {
   ): void => {
     e.preventDefault();
     const usernameInput = e.target.value;
-    if (!loading && usernameInput.length <= 16) setUsername(e.target.value);
+    if (usernameInput.length <= 16) setUsername(e.target.value);
   };
 
   const handlePasswordChange = (
@@ -31,30 +31,34 @@ function SignIn() {
   ): void => {
     e.preventDefault();
     const passwordInput = e.target.value;
-    if (!loading && passwordInput.length <= 256) setPassword(e.target.value);
+    if (passwordInput.length <= 256) setPassword(e.target.value);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const formUsername = formData.get("username") as string;
+    const formPassword = formData.get("password") as string;
+
     let isValid = false;
     let response = await makeApiCall("POST", "/auth/request-challenge", {
-      body: { username },
+      body: { username: formUsername },
     });
 
     let json = await response.json();
     if (response.ok) {
       // Sign challenge using private key and send back to the server
-      const signature = signChallenge(json.challenge, password, json.salt);
+      const signature = signChallenge(json.challenge, formPassword, json.salt);
       response = await makeApiCall("POST", "/auth/verify-challenge", {
-        body: { username, signature },
+        body: { username: formUsername, signature },
       });
 
       json = await response.json();
       if (response.ok) {
-        for (let i = 0; i < 1000000000; i++) {}
         isValid = true;
+        sessionStorage.setItem("username", formUsername);
         sessionStorage.setItem("token", json.token);
         navigate("/");
       }
