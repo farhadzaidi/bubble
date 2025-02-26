@@ -4,7 +4,6 @@ import { useInvalidSession } from "../../utils/hooks";
 import { validateUsername, validatePassword } from "./validation";
 import { makeApiCall } from "../../utils/api";
 import { generatePublicKeys } from "../../utils/crypto";
-import { connectToLedgerDatabase } from "../../utils/ledger";
 
 import Logo from "../../components/Logo";
 import Loading from "../../components/Loading";
@@ -99,8 +98,8 @@ const SignUp = () => {
 
       const json = await response.json();
       if (response.ok) {
-        // Submit messaging public key to the ledger
-        const conn = await connectToLedgerDatabase();
+        // TODO: Submit messaging public key to the ledger
+
 
         sessionStorage.setItem("username", formUsername);
         sessionStorage.setItem("token", json.token);

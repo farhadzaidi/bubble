@@ -1,11 +1,6 @@
+USE bubble;
 
-USE bubble_dev;
-
-DROP TABLE IF EXISTS UserChats;
-DROP TABLE IF EXISTS MessageViewers;
-DROP TABLE IF EXISTS Messages;
-DROP TABLE IF EXISTS Users;
-DROP TABLE IF EXISTS Chats;
+-- Main Bubble Database
 
 -- Tables
 
@@ -61,3 +56,49 @@ CREATE TABLE MessageViewers(
     ON DELETE CASCADE
     ON UPDATE CASCADE
  );
+
+-- Ledger Database
+
+-- Main Table
+
+CREATE TABLE PublicKeys(
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(16) NOT NULL UNIQUE,
+  public_key VARCHAR(64) NOT NULL UNIQUE,
+  entry_hash VARCHAR(64) NOT NULL UNIQUE,
+  prev_hash VARCHAR(64) UNIQUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+-- Triggers
+
+DELIMITER //
+
+CREATE TRIGGER prevent_update
+BEFORE UPDATE ON PublicKeys
+FOR EACH ROW
+BEGIN
+  SIGNAL SQLSTATE '45000'
+  SET MESSAGE_TEXT = 'Updates are not allowed on this table.';
+END//
+
+CREATE TRIGGER prevent_delete
+BEFORE DELETE ON PublicKeys
+FOR EACH ROW
+BEGIN
+  SIGNAL SQLSTATE '45000'
+  SET MESSAGE_TEXT = 'Deletions are not allowed on this table.';
+END//
+
+CREATE TRIGGER enforce_default_insert
+BEFORE INSERT ON PublicKeys
+FOR EACH ROW
+BEGIN
+  SET NEW.created_at = CURRENT_TIMESTAMP;
+  IF NEW.id <> 0 THEN
+    SIGNAL SQLSTATE '45000'
+    SET MESSAGE_TEXT = 'Manual ID insertion is not allowed on this table.';
+  END IF;
+END//
+
+DELIMITER ;

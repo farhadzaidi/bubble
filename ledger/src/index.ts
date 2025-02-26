@@ -79,7 +79,7 @@ app.post("/submit-public-key", async (req, res) => {
 });
 
 // Start server
-const port = Number(process.env.PORT) || 5000;
+const port = Number(process.env.PORT) || 3001;
 app.listen(port, () => {
   console.log(`Server running on port ${port}...`);
 });

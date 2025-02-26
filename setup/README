@@ -1,20 +1,13 @@
-The 'setup.sh' script in this directory is used to setup the MySQL database
-and environment variables for DEVELOPMENT.
+The docker compose file in this directory is used to create a Docker container
+which contains a MySQL image. This is meant to make development easier by avoiding
+the headaches associated with different MySQL configurations on different systems.
 
-You can run it with 'sudo ./setup.sh' in this directory.
-The script requires MySQL to be installed on your machine.
-Note: The database setup uses sudo for root user authentication, if you're
-using a separate root password, make sure to add the -p flag to each mysql
-command.
+You only need docker installed on your system to make this work and it should work
+on virtually any machine.
 
-The script will do the following:
+The schema.sql file is the file that Docker uses to populate the database with
+the schema (tables and triggers). 
 
-- Database Setup
-  - Create a 'bubble_dev' database on the local machine
-  - Create a user named 'dev' with full privileges to this database (password: dev)
-  - Create all the tables needed for the app to work
-  - Populate these tables with some dummy data for testing
-- Environment Setup
-  - Create a '.env' file with the required environment variables for the app to work
-
-Once again, this is only meant for use in DEVELOPMENT.
+Note that this schema is meant for development use only. In production, the 
+databases should be split into separate MySQL containers with stricter user 
+privileges for security. 

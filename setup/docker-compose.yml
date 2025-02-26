@@ -1,0 +1,18 @@
+services:
+
+  bubble_database:
+    image: mysql:8.0
+    container_name: bubble_database_container
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=bubble
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=dev
+    ports:
+      - "3307:3306"
+    volumes:
+      - bubble_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+volumes:
+  bubble_data:
