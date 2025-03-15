@@ -6,6 +6,16 @@
   /* border: 2px solid blue; */
 }
 
+/* Menu */
+
+.menu {
+  display: flex;
+  margin-bottom: 1rem;
+  padding-inline: 1rem;
+}
+
+/* Chat Area */
+
 .chat-area {
   display: flex;
   flex-direction: column;
@@ -103,14 +113,13 @@
   color: var(--primary-color);
 }
 
-/* Chat Preview */
+/* Chat Preview List */
 
 .chat-preview-list {
   width: 30%;
+  border-right: 2px solid var(--secondary-color);
   overflow-y: auto;
   scrollbar-width: none;
-  border-right: 2px solid var(--secondary-color);
-  /* border: 2px solid red; */
 }
 
 .chat-preview {

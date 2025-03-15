@@ -88,7 +88,7 @@ const SignUp = () => {
       // Hit sign up and submit credentials to the server
       // The server will store the salt and auth public key in the database,
       // alongside the username
-      const response = await makeApiCall("POST", "/auth/sign-up", {
+      const response = await makeApiCall(false, "POST", "/auth/sign-up", {
         body: {
           username: formUsername,
           salt: publicKeys.salt,

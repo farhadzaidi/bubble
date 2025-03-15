@@ -1,34 +1,36 @@
 import { assert } from "chai";
-import { SERVER_URL } from "../constants";
+import { SERVER_URL, LEDGER_URL } from "../constants";
 
 // This function serves as a wrapper over sendRequest in order to handle
 // the use of auth tokens
 export const makeApiCall = async (
+  targetLedger: boolean,
   method: string,
   endpoint: string,
   args?: {
     queryParameters?: Record<string, string>;
     body?: Record<string, string>;
-  }
+  },
 ): Promise<Response> => {
-  const response = await sendRequest(method, endpoint, args);
+  const response = await sendRequest(targetLedger, method, endpoint, args);
   if (response.status === 401) {
     const json = await response.clone().json();
     if (json.error === "Invalid or expired auth token") {
       sessionStorage.setItem("token", await fetchAuthToken());
-      return await sendRequest(method, endpoint, args);
+      return await sendRequest(targetLedger, method, endpoint, args);
     }
   }
   return response;
 };
 
 const fetchAuthToken = async (): Promise<string> => {
-  const response = await sendRequest("POST", "/auth/get-token");
+  const response = await sendRequest(false, "POST", "/auth/get-token");
   const json = await response.json();
   return json.token;
 };
 
 const sendRequest = async (
+  targetLedger: boolean,
   method: string,
   endpoint: string,
   args?: {
@@ -43,7 +45,7 @@ const sendRequest = async (
   if (method === "POST")
     assert(!args?.queryParameters, "POST request cannot have query paramters.");
 
-  const url = new URL(`${SERVER_URL}${endpoint}`);
+  const url = new URL(`${targetLedger ? LEDGER_URL : SERVER_URL}${endpoint}`);
   const options: any = { method: method, credentials: "include", headers: {} };
 
   // Set auth token

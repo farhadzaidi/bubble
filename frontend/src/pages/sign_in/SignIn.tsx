@@ -43,7 +43,7 @@ function SignIn() {
     const formPassword = formData.get("password") as string;
 
     let isValid = false;
-    let response = await makeApiCall("POST", "/auth/request-challenge", {
+    let response = await makeApiCall(false, "POST", "/auth/request-challenge", {
       body: { username: formUsername },
     });
 
@@ -51,7 +51,7 @@ function SignIn() {
     if (response.ok) {
       // Sign challenge using private key and send back to the server
       const signature = signChallenge(json.challenge, formPassword, json.salt);
-      response = await makeApiCall("POST", "/auth/verify-challenge", {
+      response = await makeApiCall(false, "POST", "/auth/verify-challenge", {
         body: { username: formUsername, signature },
       });
 

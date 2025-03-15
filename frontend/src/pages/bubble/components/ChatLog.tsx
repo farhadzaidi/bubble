@@ -21,6 +21,7 @@ function ChatLog({ chatId, socket }: Props) {
   useEffect(() => {
     (async () => {
       let response = await makeApiCall(
+        false,
         "GET",
         "/messages/get-messages-by-chat",
         { queryParameters: { chatId } }
