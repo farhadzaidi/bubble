@@ -36,6 +36,8 @@ CREATE TABLE Messages(
 CREATE TABLE UserChats(
   username VARCHAR(16) NOT NULL,
   chat_id VARCHAR(256) NOT NULL,
+  joined BOOLEAN NOT NULL,
+  encryption_key VARCHAR(64) NOT NULL,
   PRIMARY KEY (username, chat_id),
   FOREIGN KEY (username) REFERENCES Users(username) 
     ON DELETE CASCADE 

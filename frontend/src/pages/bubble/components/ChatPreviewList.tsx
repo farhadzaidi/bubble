@@ -17,11 +17,16 @@ function ChatPreviewList({ setChatId }: Props) {
   // Get chats by username
   useEffect(() => {
     (async () => {
-      let response = await makeApiCall(false, "GET", "/chats/get-chats-by-user", {
-        queryParameters: {
-          username: sessionStorage.getItem("username") as string,
-        },
-      });
+      let response = await makeApiCall(
+        false,
+        "GET",
+        "/chats/get-chats-by-user",
+        {
+          queryParameters: {
+            username: sessionStorage.getItem("username") as string,
+          },
+        }
+      );
       const json = await response.json();
       setChats(json);
 
@@ -29,19 +34,17 @@ function ChatPreviewList({ setChatId }: Props) {
       setChats([
         {
           chat_id: "chat1",
-          chat_name: "chat one"
+          chat_name: "chat one",
         },
         {
           chat_id: "chat2",
-          chat_name: "chat two"
+          chat_name: "chat two",
         },
         {
           chat_id: "chat3",
-          chat_name: "chat three"
-        }
+          chat_name: "chat three",
+        },
       ]);
-
-
     })();
   }, []);
 

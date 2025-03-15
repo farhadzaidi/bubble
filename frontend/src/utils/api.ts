@@ -10,7 +10,7 @@ export const makeApiCall = async (
   args?: {
     queryParameters?: Record<string, string>;
     body?: Record<string, string>;
-  },
+  }
 ): Promise<Response> => {
   const response = await sendRequest(targetLedger, method, endpoint, args);
   if (response.status === 401) {

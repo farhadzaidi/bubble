@@ -82,6 +82,7 @@ function SignIn() {
           <label htmlFor="username">
             <small>Username</small>
           </label>
+
           <input
             type="text"
             name="username"
@@ -89,6 +90,7 @@ function SignIn() {
             value={username}
             onChange={handleUsernameChange}
           />
+
           <label htmlFor="password">
             <small>Password</small>
           </label>

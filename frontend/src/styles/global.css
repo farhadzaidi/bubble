@@ -2,9 +2,10 @@
   --primary-color: #0077d2;
   --secondary-color: #c3c3c3;
   --background-color: #0b0b12;
-  --danger-color: #c34343;
+  --danger-color: #ca2727;
   --input-color: #1b1b1d;
   --button-hover-color: #008df9;
+  --danger-button-hover-color: #d13131;
 }
 
 html {
