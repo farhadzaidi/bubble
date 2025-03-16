@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useInvalidSession } from "../../utils/hooks";
 import { validateUsername, validatePassword } from "./validation";
 import { makeApiCall } from "../../utils/api";
-import { generatePublicKeys } from "../../utils/crypto";
+import { generateEncryptionKeys } from "../../utils/crypto";
 
 import Logo from "../../components/Logo";
 import Loading from "../../components/Loading";
@@ -50,62 +50,74 @@ const SignUp = () => {
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     e.preventDefault();
+    setLoading(true);
 
-    // TODO: implement loading spinner (not working for some reason)
+    // Delay execution to allow loading spinner to render
+    // The form element needs to be stored in memory before the timeout
+    const formElement = e.currentTarget;
+    setTimeout(async () => {
+      // Validate fields and set errors accordingly
+      const formData = new FormData(formElement);
+      let hasEmptyFields = false;
 
-    // Validate fields and set errors accordingly
-    const formData = new FormData(e.currentTarget);
-    let hasEmptyFields = false;
+      const formUsername = formData.get("username") as string;
+      if (formUsername === "") {
+        setUsernameError("Username cannot be empty.");
+        hasEmptyFields = true;
+      }
 
-    const formUsername = formData.get("username") as string;
-    if (formUsername === "") {
-      setUsernameError("Username cannot be empty.");
-      hasEmptyFields = true;
-    }
+      const formPassword = formData.get("password") as string;
+      if (formPassword === "") {
+        setPasswordError("Password cannot be empty.");
+        hasEmptyFields = true;
+      }
 
-    const formPassword = formData.get("password") as string;
-    if (formPassword === "") {
-      setPasswordError("Password cannot be empty.");
-      hasEmptyFields = true;
-    }
+      const formConfirmPassword = formData.get("confirmPassword") as string;
+      if (formConfirmPassword === "") {
+        setConfirmPasswordError("Please confirm the password.");
+        hasEmptyFields = true;
+      }
 
-    const formConfirmPassword = formData.get("confirmPassword") as string;
-    if (formConfirmPassword === "") {
-      setConfirmPasswordError("Please confirm the password.");
-      hasEmptyFields = true;
-    }
+      const isValidFormData =
+        !hasEmptyFields &&
+        usernameError === "" &&
+        passwordError === "" &&
+        confirmPasswordError === "";
 
-    const isValidFormData =
-      !hasEmptyFields &&
-      usernameError === "" &&
-      passwordError === "" &&
-      confirmPasswordError === "";
+      // Only send request to API if the fields are valid
+      if (isValidFormData) {
+        const encryptionKeys = generateEncryptionKeys(password);
 
-    // Only send request to API if the fields are valid
-    if (isValidFormData) {
-      const publicKeys = generatePublicKeys(password);
+        // Hit sign up and submit credentials to the server
+        // The server will store the salt and auth public key in the database,
+        // alongside the username
+        const response = await makeApiCall(false, "POST", "/auth/sign-up", {
+          body: {
+            username: formUsername,
+            salt: encryptionKeys.salt,
+            publicKey: encryptionKeys.authPublicKey,
+          },
+        });
 
-      // Hit sign up and submit credentials to the server
-      // The server will store the salt and auth public key in the database,
-      // alongside the username
-      const response = await makeApiCall(false, "POST", "/auth/sign-up", {
-        body: {
-          username: formUsername,
-          salt: publicKeys.salt,
-          publicKey: publicKeys.authPublicKey,
-        },
-      });
+        const json = await response.json();
+        if (response.ok) {
+          await makeApiCall(true, "POST", "/submit-public-key", {
+            body: {
+              username: formUsername,
+              publicKey: encryptionKeys.messagingPublicKey,
+            },
+          });
 
-      const json = await response.json();
-      if (response.ok) {
-        // TODO: Submit messaging public key to the ledger
+          const privateKey = encryptionKeys.messagingPrivateKey;
+          sessionStorage.setItem("privateKey", privateKey);
+          sessionStorage.setItem("username", formUsername);
+          sessionStorage.setItem("token", json.token);
+          navigate("/");
+        } else setUsernameError("Username already exists."); // Only possible error
+      }
 
-
-        sessionStorage.setItem("username", formUsername);
-        sessionStorage.setItem("token", json.token);
-        navigate("/");
-      } else setUsernameError("Username already exists."); // Only possible error
-    }
+      setLoading(false);
+    }, 0);
   };
 
   // Ensure passwords match when either one changes

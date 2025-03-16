@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { makeApiCall } from "../../../utils/api";
+
+import Loading from "../../../components/Loading";
 
 type Props = {
   closeModal: () => void;
@@ -8,6 +11,8 @@ function CreateChatModal({ closeModal }: Props) {
   const [chatUsers, setChatUsers] = useState<string[]>([]);
   const [newChatUser, setNewChatUser] = useState("");
   const [inputError, setInputError] = useState("");
+  const [invalidUsernames, setInvalidUsernames] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleChatUserChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -31,6 +36,12 @@ function CreateChatModal({ closeModal }: Props) {
       return;
     }
 
+    const currentUsername = sessionStorage.getItem("username");
+    if (username === currentUsername) {
+      setInputError("You cannot enter your own username.");
+      return;
+    }
+
     setChatUsers([...chatUsers, newChatUser]);
     setNewChatUser("");
     setInputError("");
@@ -42,11 +53,58 @@ function CreateChatModal({ closeModal }: Props) {
     );
   };
 
+  const createChat = async () => {
+    setLoading(true);
+
+    // Ensure that at least one username has been entered
+    if (chatUsers.length === 0) {
+      setInputError("Please enter at least one username.");
+      return;
+    }
+
+    const response = await makeApiCall(true, "POST", "/get-public-keys", {
+      body: {
+        usernames: JSON.stringify(chatUsers),
+      },
+    });
+
+    // Here, we are fetching public keys based on provided usernames and
+    // ensuring that the user hasn't provided any invalid usernames
+    const json = await response.json();
+    const confirmedUsernames: string[] = json.map(
+      (user: { username: string; public_key: string }) => user.username
+    );
+
+    const unconfirmedUsernames = chatUsers.filter(
+      (username) => !confirmedUsernames.includes(username)
+    );
+
+    setInvalidUsernames(unconfirmedUsernames);
+    if (unconfirmedUsernames.length > 0) {
+      setInputError("Please remove or re-enter all invalid usernames.");
+      setLoading(false);
+      return;
+    }
+
+    setInputError("");
+
+    // We are good to create the chat now
+    // hit api
+    // api will create a new chat entry
+    // it will also create userchats junction table for each provided user
+    // the junction table will have user and chat info along with:
+    // encrypted symmetric encryption key provided by the inviter
+    // AES generated encryption key which itself is encrypted by the user's public key
+    // joined status which will be no by default
+
+    setLoading(false);
+  };
+
   return (
     <div className="create-chat-modal">
       <div className="create-chat-modal-content">
         <div className="create-chat-modal-header">
-          <button onClick={closeModal} className="button">
+          <button onClick={closeModal} className="outline-button">
             Cancel
           </button>
           <p>Add Users</p>
@@ -55,8 +113,14 @@ function CreateChatModal({ closeModal }: Props) {
         <div className="add-chat-users-list">
           {chatUsers.map((chatUser) => {
             return (
-              <div>
-                <p>{chatUser}</p>
+              <div key={chatUser}>
+                <p
+                  className={
+                    invalidUsernames.includes(chatUser) ? "danger" : ""
+                  }
+                >
+                  {chatUser}
+                </p>
                 <button
                   className="danger-button"
                   onClick={() => removeChatUser(chatUser)}
@@ -83,11 +147,15 @@ function CreateChatModal({ closeModal }: Props) {
 
         {inputError !== "" && <p className="danger">{inputError}</p>}
 
-        {/* Hit ledger to obtain  public keys*/}
-        {/* Generate a symmetric encryption key and encrypt it with
-        each user's public key */}
-        {/* Hit API to create chat invites */}
-        <button className="button">Submit</button>
+        {loading ? (
+          <div className="text-center">
+            <Loading />
+          </div>
+        ) : (
+          <button onClick={createChat} className="button">
+            Create
+          </button>
+        )}
       </div>
     </div>
   );

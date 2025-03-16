@@ -36,10 +36,11 @@ app.post("/get-public-keys", async (req, res) => {
   }
 
   // If the hash chain is intact we can now fetch the public keys
-  const usernames: string[] = req.body.usernames;
+  const usernames: string[] = JSON.parse(req.body.usernames);
   const placeholders = usernames.map(() => "?").join(", ");
   query = `SELECT username, public_key FROM PublicKeys WHERE username IN (${placeholders})`;
   [result] = await database.query<RowDataPacket[]>(query, usernames);
+  console.log(result);
   res.status(200).json(result);
 });
 

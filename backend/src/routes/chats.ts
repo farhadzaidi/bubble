@@ -19,3 +19,5 @@ chatsRouter.get("/get-chats-by-user", verifyUser, async (req, res) => {
   const [result] = await database.query<RowDataPacket[]>(query, [username]);
   res.status(200).json(result);
 });
+
+chatsRouter.post("/create-chat");

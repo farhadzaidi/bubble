@@ -77,6 +77,11 @@
   margin-left: 2rem;
 }
 
+.add-chat-users-list p span {
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
 .add-chat-users {
   display: flex;
   justify-content: space-between;

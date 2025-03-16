@@ -2,7 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useInvalidSession } from "../../utils/hooks";
 import { makeApiCall } from "../../utils/api";
-import { signChallenge } from "../../utils/crypto";
+import {
+  regenerateMessagingPrivateKey,
+  signChallenge,
+} from "../../utils/crypto";
 import Logo from "../../components/Logo";
 import Loading from "../../components/Loading";
 import "../../styles/form.css";
@@ -58,6 +61,12 @@ function SignIn() {
       json = await response.json();
       if (response.ok) {
         isValid = true;
+        const privateKey = regenerateMessagingPrivateKey(
+          formPassword,
+          json.salt
+        );
+
+        sessionStorage.setItem("privateKey", privateKey);
         sessionStorage.setItem("username", formUsername);
         sessionStorage.setItem("token", json.token);
         navigate("/");

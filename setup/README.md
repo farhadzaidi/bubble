@@ -11,11 +11,11 @@ and the configuration for the containers and the schema should be different in p
 To get started, simply run the following command in this directory:
 
 ```sh
-docker-compose up -d
+sudo docker-compose up -d
 ```
 
 Depending on how you installed Docker, you may need to omit the hyphen:
 
 ```sh
-docker compose up -d
+sudo docker compose up -d
 ```
