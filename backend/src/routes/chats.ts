@@ -20,4 +20,12 @@ chatsRouter.get("/get-chats-by-user", verifyUser, async (req, res) => {
   res.status(200).json(result);
 });
 
-chatsRouter.post("/create-chat");
+chatsRouter.post("/create-chat", async (req, res) => {
+  // userInfo array (user will also provide their own)
+  // - username
+  // - encrypted symmetric encryption key
+  const userInfo = JSON.parse(req.body.userInfo);
+
+  // create Chats entry
+  // create UserChats entry for each user with joined = false
+});

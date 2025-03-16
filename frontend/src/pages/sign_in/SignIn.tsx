@@ -53,7 +53,8 @@ function SignIn() {
     let json = await response.json();
     if (response.ok) {
       // Sign challenge using private key and send back to the server
-      const signature = signChallenge(json.challenge, formPassword, json.salt);
+      const salt = json.salt;
+      const signature = signChallenge(json.challenge, formPassword, salt);
       response = await makeApiCall(false, "POST", "/auth/verify-challenge", {
         body: { username: formUsername, signature },
       });
@@ -61,12 +62,10 @@ function SignIn() {
       json = await response.json();
       if (response.ok) {
         isValid = true;
-        const privateKey = regenerateMessagingPrivateKey(
-          formPassword,
-          json.salt
-        );
 
+        const privateKey = regenerateMessagingPrivateKey(formPassword, salt);
         sessionStorage.setItem("privateKey", privateKey);
+
         sessionStorage.setItem("username", formUsername);
         sessionStorage.setItem("token", json.token);
         navigate("/");
