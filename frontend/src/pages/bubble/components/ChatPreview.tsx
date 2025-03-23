@@ -1,16 +1,11 @@
-type ChatProps = {
+type Props = {
   chatId: string;
   chatName: string;
   numNewMessages: number;
   setChatId: React.Dispatch<React.SetStateAction<string>>;
 };
 
-function ChatPreview({
-  chatId,
-  chatName,
-  numNewMessages,
-  setChatId,
-}: ChatProps) {
+function ChatPreview({ chatId, chatName, numNewMessages, setChatId }: Props) {
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setChatId(chatId);

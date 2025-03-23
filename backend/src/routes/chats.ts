@@ -6,6 +6,7 @@ import { requireSession, requireAuthToken, verifyUser } from "../middleware";
 export const chatsRouter = Router();
 chatsRouter.use(requireSession);
 chatsRouter.use(requireAuthToken);
+chatsRouter.use(verifyUser);
 
 type EncryptionKeyType = {
   username: string;
@@ -18,10 +19,10 @@ const createChatId = (encryptionKeys: EncryptionKeyType[]) => {
   return usernames.sort().join(":");
 };
 
-chatsRouter.get("/get-chats-by-user", verifyUser, async (req, res) => {
+chatsRouter.get("/get-chats-by-user", async (req, res) => {
   const username = req.query.username;
   const query = `
-    SELECT UC.chat_id, C.chat_name, UC.joined
+    SELECT UC.chat_id, C.chat_name, C.creator, UC.joined
     FROM UserChats UC
     JOIN Chats C ON UC.chat_id = C.chat_id
     JOIN Users U ON UC.username = U.username
@@ -31,23 +32,24 @@ chatsRouter.get("/get-chats-by-user", verifyUser, async (req, res) => {
   res.status(200).json(result);
 });
 
-chatsRouter.post("/create-chat", verifyUser, async (req, res) => {
+chatsRouter.post("/create-chat", async (req, res) => {
   // Extract info
   const encryptionKeys: EncryptionKeyType[] = req.body.encryptionKeys;
+  const creator = req.query.username as string;
   const chatId = createChatId(encryptionKeys);
   const chatName = chatId; // TODO
 
   // Create chat
-  let query = `INSERT INTO Chats (chat_id, chat_name) VALUES (?, ?)`;
+  let query = `INSERT INTO Chats (chat_id, chat_name, creator) VALUES (?, ?, ?)`;
   try {
-    await database.query(query, [chatId, chatName]);
+    await database.query(query, [chatId, chatName, creator]);
   } catch (error: any) {
     if (error?.code == "ER_DUP_ENTRY") {
       res
         .status(409)
         .json({ error: "Chat with these members already exists." });
-    }
-    throw error;
+      return;
+    } else throw error;
   }
 
   // Create UserChats table for each user
@@ -62,10 +64,28 @@ chatsRouter.post("/create-chat", verifyUser, async (req, res) => {
   query = `INSERT INTO UserChats (username, chat_id, joined, nonce, encryption_key) VALUES ?`;
   await database.query(query, [userChats]);
 
-  // Modify sender's UserChats table to set "joined" attribute to true since
-  // the sender (creator of the chat) automatically joins the chat
-  query = `UPDATE UserChats SET joined=true WHERE username=?`;
-  await database.query(query, [req.query?.username]);
+  // Modify creator's UserChats table to set "joined" attribute to true since
+  // the creator automatically joins the chat
+  query = `UPDATE UserChats SET joined=true WHERE username=? AND chat_id=?`;
+  await database.query(query, [creator, chatId]);
 
   res.status(200).json({});
+});
+
+chatsRouter.post("/accept-chat-invite", async (req, res) => {
+  const username = req.query.username as string;
+  const chatId: string = req.body.chatId;
+
+  const query = `UPDATE UserChats SET joined=true WHERE username = ? AND chat_id = ?`;
+  await database.query(query, [username, chatId]);
+  res.sendStatus(200);
+});
+
+chatsRouter.post("/decline-chat-invite", async (req, res) => {
+  const username = req.query.username as string;
+  const chatId: string = req.body.chatId;
+
+  const query = `DELETE FROM UserChats WHERE username = ? AND chat_id = ?`;
+  await database.query(query, [username, chatId]);
+  res.sendStatus(200);
 });

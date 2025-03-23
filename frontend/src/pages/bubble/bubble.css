@@ -206,7 +206,8 @@
   scrollbar-width: none;
 }
 
-.chat-preview {
+.chat-preview,
+.chat-invite {
   padding: 1rem;
   margin-inline: 0.5rem;
   margin-top: 0.5rem;
@@ -218,4 +219,15 @@
   background-color: var(--secondary-color);
   color: var(--background-color);
   border-radius: 10px;
+}
+
+.chat-invite-options {
+  display: flex;
+  gap: 1rem;
+}
+.chat-invite-options button {
+  margin-top: 0.5rem;
+  font-size: 1.25rem;
+  width: 5rem;
+  height: 2rem;
 }

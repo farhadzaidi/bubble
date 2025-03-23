@@ -13,7 +13,8 @@ CREATE TABLE Users(
 
 CREATE TABLE Chats(
   chat_id VARCHAR(256) PRIMARY KEY,
-  chat_name VARCHAR(512) NOT NULL
+  chat_name VARCHAR(512) NOT NULL,
+  creator VARCHAR(16) NOT NULL
 );
 
 CREATE TABLE Messages(

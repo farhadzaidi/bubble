@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { makeApiCall } from "../../../utils/api";
+
 import ChatPreview from "./ChatPreview";
+import ChatInvite from "./ChatInvite";
 
 type Chat = {
   chat_id: string;
   chat_name: string;
+  creator: string;
   joined: boolean;
 };
 
@@ -42,7 +45,7 @@ function ChatPreviewList({ setChatId }: Props) {
         if (name.length > MAX_LENGTH) {
           name = name.slice(0, MAX_LENGTH - 3) + "...";
         }
-
+        console.log(`Chat ID: ${chat.chat_id}, status: ${chat.joined}`);
         return chat.joined ? (
           <ChatPreview
             key={chat.chat_id}
@@ -51,7 +54,16 @@ function ChatPreviewList({ setChatId }: Props) {
             numNewMessages={0}
             setChatId={setChatId}
           />
-        ) : null; // TODO: design chat invites
+        ) : (
+          <ChatInvite
+            key={chat.chat_id}
+            chatId={chat.chat_id}
+            chatName={name}
+            creator={chat.creator}
+            setChatId={setChatId}
+            setChats={setChats}
+          />
+        );
       })}
     </div>
   );

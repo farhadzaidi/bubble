@@ -133,6 +133,7 @@ function CreateChatModal({ closeModal }: Props) {
 
     if (!response.ok) {
       setInputError((await response.json()).error);
+      setLoading(false);
       return;
     }
 
