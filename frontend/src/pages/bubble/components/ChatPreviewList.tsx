@@ -5,6 +5,7 @@ import ChatPreview from "./ChatPreview";
 type Chat = {
   chat_id: string;
   chat_name: string;
+  joined: boolean;
 };
 
 type Props = {
@@ -29,22 +30,6 @@ function ChatPreviewList({ setChatId }: Props) {
       );
       const json = await response.json();
       setChats(json);
-
-      // TESTING
-      setChats([
-        {
-          chat_id: "chat1",
-          chat_name: "chat one",
-        },
-        {
-          chat_id: "chat2",
-          chat_name: "chat two",
-        },
-        {
-          chat_id: "chat3",
-          chat_name: "chat three",
-        },
-      ]);
     })();
   }, []);
 
@@ -57,7 +42,8 @@ function ChatPreviewList({ setChatId }: Props) {
         if (name.length > MAX_LENGTH) {
           name = name.slice(0, MAX_LENGTH - 3) + "...";
         }
-        return (
+
+        return chat.joined ? (
           <ChatPreview
             key={chat.chat_id}
             chatId={chat.chat_id}
@@ -65,7 +51,7 @@ function ChatPreviewList({ setChatId }: Props) {
             numNewMessages={0}
             setChatId={setChatId}
           />
-        );
+        ) : null; // TODO: design chat invites
       })}
     </div>
   );

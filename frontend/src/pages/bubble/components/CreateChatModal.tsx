@@ -2,9 +2,24 @@ import { useState } from "react";
 import { makeApiCall } from "../../../utils/api";
 
 import Loading from "../../../components/Loading";
+import {
+  encryptWithPublicKey,
+  generateSymmetricEncryptionKey,
+} from "../../../utils/crypto";
 
 type Props = {
   closeModal: () => void;
+};
+
+type LedgerInfoType = {
+  username: string;
+  public_key: string;
+};
+
+type EncryptionKeyType = {
+  username: string;
+  nonce: string;
+  encryptionKey: string;
 };
 
 function CreateChatModal({ closeModal }: Props) {
@@ -13,6 +28,29 @@ function CreateChatModal({ closeModal }: Props) {
   const [inputError, setInputError] = useState("");
   const [invalidUsernames, setInvalidUsernames] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const createEncryptionKeys = (
+    ledgerInfo: LedgerInfoType[]
+  ): EncryptionKeyType[] => {
+    const symmetricKey = generateSymmetricEncryptionKey();
+
+    let encryptionKeys: EncryptionKeyType[] = [];
+    for (const { username, public_key } of ledgerInfo) {
+      const { nonce, encryptedSymmetricKey } = encryptWithPublicKey(
+        symmetricKey,
+        public_key,
+        sessionStorage.getItem("privateKey") as string
+      );
+
+      encryptionKeys.push({
+        username: username,
+        nonce: nonce,
+        encryptionKey: encryptedSymmetricKey,
+      });
+    }
+
+    return encryptionKeys;
+  };
 
   const handleChatUserChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -62,42 +100,44 @@ function CreateChatModal({ closeModal }: Props) {
       return;
     }
 
-    const response = await makeApiCall(true, "POST", "/get-public-keys", {
+    // Make API call to ledger to get public keys
+    const currentUsername = sessionStorage.getItem("username") as string;
+    let response = await makeApiCall(true, "POST", "/get-public-keys", {
       body: {
-        usernames: JSON.stringify(chatUsers),
+        usernames: JSON.stringify([...chatUsers, currentUsername]),
       },
     });
+    const ledgerInfo: LedgerInfoType[] = await response.json();
 
-    // Here, we are fetching public keys based on provided usernames and
-    // ensuring that the user hasn't provided any invalid usernames
-    const json = await response.json();
-    const confirmedUsernames: string[] = json.map(
-      (user: { username: string; public_key: string }) => user.username
+    // Ensure there are no invalid usernames
+    const confirmedUsernames: string[] = ledgerInfo.map(
+      (info) => info.username
     );
-
     const unconfirmedUsernames = chatUsers.filter(
       (username) => !confirmedUsernames.includes(username)
     );
-
     setInvalidUsernames(unconfirmedUsernames);
     if (unconfirmedUsernames.length > 0) {
       setInputError("Please remove or re-enter all invalid usernames.");
       setLoading(false);
       return;
     }
+    setInputError(""); // No errors, can continue on
 
-    setInputError("");
+    // Make API call to create the chat
+    const encryptionKeys = createEncryptionKeys(ledgerInfo);
+    response = await makeApiCall(false, "POST", "/chats/create-chat", {
+      queryParameters: { username: currentUsername },
+      body: { encryptionKeys },
+    });
 
-    // We are good to create the chat now
-    // hit api
-    // api will create a new chat entry
-    // it will also create userchats junction table for each provided user
-    // the junction table will have user and chat info along with:
-    // encrypted symmetric encryption key provided by the inviter
-    // AES generated encryption key which itself is encrypted by the user's public key
-    // joined status which will be no by default
+    if (!response.ok) {
+      setInputError((await response.json()).error);
+      return;
+    }
 
     setLoading(false);
+    window.location.reload();
   };
 
   return (

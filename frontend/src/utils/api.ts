@@ -9,7 +9,7 @@ export const makeApiCall = async (
   endpoint: string,
   args?: {
     queryParameters?: Record<string, string>;
-    body?: Record<string, string>;
+    body?: Record<string, any>;
   }
 ): Promise<Response> => {
   const response = await sendRequest(targetLedger, method, endpoint, args);
@@ -35,15 +35,13 @@ const sendRequest = async (
   endpoint: string,
   args?: {
     queryParameters?: Record<string, string>;
-    body?: Record<string, string>;
+    body?: Record<string, any>;
   }
 ): Promise<Response> => {
   // Validate request
   method = method.toUpperCase();
   assert(method === "GET" || method === "POST", `Invalid method '${method}'`);
   if (method === "GET") assert(!args?.body, "GET request cannot have a body.");
-  if (method === "POST")
-    assert(!args?.queryParameters, "POST request cannot have query paramters.");
 
   const url = new URL(`${targetLedger ? LEDGER_URL : SERVER_URL}${endpoint}`);
   const options: any = { method: method, credentials: "include", headers: {} };

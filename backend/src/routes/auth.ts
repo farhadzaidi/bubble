@@ -101,7 +101,7 @@ authRouter.post(
     }
 
     // Store record in the database
-    query = `INSERT INTO Users (username, salt, public_key) values (?, ?, ?);`;
+    query = `INSERT INTO Users (username, salt, public_key) VALUES (?, ?, ?);`;
     await database.query(query, [username, salt, publicKey]);
 
     // Success
