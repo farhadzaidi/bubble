@@ -21,6 +21,7 @@ CREATE TABLE Messages(
   message_id VARCHAR(64) PRIMARY KEY,
   chat_id VARCHAR(256) NOT NULL,
   sender VARCHAR(16) NOT NULL,
+  nonce VARCHAR(256) NOT NULL,
   content text NOT NULL,
   sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   FOREIGN KEY (sender) REFERENCES Users(username)

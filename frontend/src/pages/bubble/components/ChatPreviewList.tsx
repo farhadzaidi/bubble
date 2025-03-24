@@ -45,7 +45,7 @@ function ChatPreviewList({ setChatId }: Props) {
         if (name.length > MAX_LENGTH) {
           name = name.slice(0, MAX_LENGTH - 3) + "...";
         }
-        console.log(`Chat ID: ${chat.chat_id}, status: ${chat.joined}`);
+
         return chat.joined ? (
           <ChatPreview
             key={chat.chat_id}

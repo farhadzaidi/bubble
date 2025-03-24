@@ -97,7 +97,7 @@ export const encryptWithPublicKey = (
 
 // Decrypts the provided encrypted symmetric key using the user's private key
 // Also verifies sender with their public key
-export const decryptWithPublicKey = (
+export const decryptWithPrivateKey = (
   encryptedSymmetricKey: string,
   nonce: string,
   senderPublicKey: string,

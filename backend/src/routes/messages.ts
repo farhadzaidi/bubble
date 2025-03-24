@@ -10,7 +10,7 @@ messagesRouter.use(requireAuthToken);
 messagesRouter.get("/get-messages-by-chat", async (req, res) => {
   const chatId = req.query.chatId;
   const query = `
-    SELECT M.message_id, M.sender, M.content, M.sent_at
+    SELECT M.message_id, M.sender, M.nonce, M.content, M.sent_at
     FROM Messages M
     JOIN Chats C ON C.chat_id = M.chat_id
     WHERE C.chat_id = ?;

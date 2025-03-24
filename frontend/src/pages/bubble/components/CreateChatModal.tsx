@@ -100,11 +100,12 @@ function CreateChatModal({ closeModal }: Props) {
       return;
     }
 
+    // TODO: Implement Trust On First Use
     // Make API call to ledger to get public keys
     const currentUsername = sessionStorage.getItem("username") as string;
     let response = await makeApiCall(true, "POST", "/get-public-keys", {
       body: {
-        usernames: JSON.stringify([...chatUsers, currentUsername]),
+        usernames: [...chatUsers, currentUsername],
       },
     });
     const ledgerInfo: LedgerInfoType[] = await response.json();

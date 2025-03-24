@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Socket } from "socket.io-client";
+import { encryptMessageWithSymmetricKey } from "../../../utils/crypto";
 
 type Props = {
   chatId: string;
@@ -16,7 +17,14 @@ function SendMessage({ chatId, socket }: Props) {
 
   const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    socket.emit("message", `${chatId} ${messageContent}`);
+
+    // Encrypt message
+    const { nonce, ciphertext } = encryptMessageWithSymmetricKey(
+      messageContent,
+      sessionStorage.getItem(`symmetricKey:${chatId}`) as string
+    );
+
+    socket.emit("message", { chatId, nonce, content: ciphertext });
     setMessageContent("");
   };
 

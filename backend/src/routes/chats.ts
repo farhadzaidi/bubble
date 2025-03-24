@@ -6,7 +6,6 @@ import { requireSession, requireAuthToken, verifyUser } from "../middleware";
 export const chatsRouter = Router();
 chatsRouter.use(requireSession);
 chatsRouter.use(requireAuthToken);
-chatsRouter.use(verifyUser);
 
 type EncryptionKeyType = {
   username: string;
@@ -19,7 +18,7 @@ const createChatId = (encryptionKeys: EncryptionKeyType[]) => {
   return usernames.sort().join(":");
 };
 
-chatsRouter.get("/get-chats-by-user", async (req, res) => {
+chatsRouter.get("/get-chats-by-user", verifyUser, async (req, res) => {
   const username = req.query.username;
   const query = `
     SELECT UC.chat_id, C.chat_name, C.creator, UC.joined
@@ -32,7 +31,7 @@ chatsRouter.get("/get-chats-by-user", async (req, res) => {
   res.status(200).json(result);
 });
 
-chatsRouter.post("/create-chat", async (req, res) => {
+chatsRouter.post("/create-chat", verifyUser, async (req, res) => {
   // Extract info
   const encryptionKeys: EncryptionKeyType[] = req.body.encryptionKeys;
   const creator = req.query.username as string;
@@ -72,7 +71,7 @@ chatsRouter.post("/create-chat", async (req, res) => {
   res.status(200).json({});
 });
 
-chatsRouter.post("/accept-chat-invite", async (req, res) => {
+chatsRouter.post("/accept-chat-invite", verifyUser, async (req, res) => {
   const username = req.query.username as string;
   const chatId: string = req.body.chatId;
 
@@ -81,11 +80,47 @@ chatsRouter.post("/accept-chat-invite", async (req, res) => {
   res.sendStatus(200);
 });
 
-chatsRouter.post("/decline-chat-invite", async (req, res) => {
+chatsRouter.post("/decline-chat-invite", verifyUser, async (req, res) => {
   const username = req.query.username as string;
   const chatId: string = req.body.chatId;
 
   const query = `DELETE FROM UserChats WHERE username = ? AND chat_id = ?`;
   await database.query(query, [username, chatId]);
   res.sendStatus(200);
+});
+
+chatsRouter.post("/get-encryption-key", async (req, res) => {
+  const username = req.query.username as string;
+  const chatId: string = req.body.chatId;
+
+  const query = `SELECT nonce, encryption_key FROM UserChats WHERE username = ? AND chat_id = ?`;
+  const [result] = await database.query<RowDataPacket[]>(query, [
+    username,
+    chatId,
+  ]);
+
+  if (result.length === 0) {
+    res.status(404).json({
+      error: "Failed to find encryption key for provided username and chat ID",
+    });
+    return;
+  }
+
+  res
+    .status(200)
+    .json({ nonce: result[0].nonce, encryptionKey: result[0].encryption_key });
+});
+
+chatsRouter.get("/get-chat-creator", async (req, res) => {
+  const chatId: string = req.query.chatId as string;
+  const query = `SELECT creator FROM Chats WHERE chat_id = ?`;
+  const [result] = await database.query<RowDataPacket[0]>(query, [chatId]);
+
+  if (result.length === 0) {
+    res.status(404).json({
+      error: "Failed to find chat creator with provided chat ID",
+    });
+  }
+
+  res.status(200).json({ creator: result[0].creator });
 });
