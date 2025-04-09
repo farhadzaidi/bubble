@@ -25,6 +25,33 @@ function ChatLog({ chatId, socket }: Props) {
     );
   };
 
+  // Checks if the two timestamps are within a minute of each other
+  // Does NOT do an exact check
+  const isSameTimestamp = (timestamp1: string, timestamp2: string): boolean => {
+    const date1 = new Date(timestamp1);
+    const date2 = new Date(timestamp2);
+
+    const uMinute = 1000 * 60;
+    const difference = Math.abs(date1.getTime() - date2.getTime());
+    return difference < uMinute;
+  };
+
+  // Formats timestamp to HH:MM in local time
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    let hours = date.getHours();
+    const ampm = hours >= 12 ? "PM" : "AM";
+
+    // Change from 24-hour to AM/PM
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 0 should be 12
+
+    const formattedHours = String(hours).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${formattedHours}:${minutes} ${ampm}`;
+  };
+
   // Get messages by chat
   useEffect(() => {
     (async () => {
@@ -50,6 +77,7 @@ function ChatLog({ chatId, socket }: Props) {
 
       sortMessages(decryptedMessages);
       setMessages(decryptedMessages);
+      console.log(decryptedMessages);
     })();
   }, [chatId]);
 
@@ -79,6 +107,7 @@ function ChatLog({ chatId, socket }: Props) {
   }, [socket]);
 
   let prevSender: string | null = null;
+  let prevTimestamp: string | null = null;
 
   return (
     // TODO: add loading animation messages haven't been loaded in yet
@@ -90,8 +119,14 @@ function ChatLog({ chatId, socket }: Props) {
       {/* TODO: order by timestamp */}
       {messages.map(({ content, message_id, sender, sent_at }) => {
         const isSent = sender === sessionStorage.getItem("username");
+
         const sameSender = prevSender === sender;
+        const sameTimestamp = prevTimestamp
+          ? isSameTimestamp(prevTimestamp, sent_at)
+          : false;
+
         prevSender = sender;
+        prevTimestamp = sent_at;
 
         if (sender === "") sender = "You";
 
@@ -100,10 +135,13 @@ function ChatLog({ chatId, socket }: Props) {
             key={message_id}
             className={`message ${isSent ? "sent" : "received"}-message`}
           >
-            {!sameSender && <span className="message-info">{sender}</span>}
+            {!sameSender && <span className="message-sender">{sender}</span>}
             <span className={`content ${isSent ? "sent" : "received"}-content`}>
               {content}
             </span>
+            {!sameTimestamp && (
+              <span className="message-time">{formatTimestamp(sent_at)}</span>
+            )}
           </div>
         );
       })}

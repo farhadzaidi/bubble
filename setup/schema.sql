@@ -61,6 +61,17 @@ CREATE TABLE MessageViewers(
     ON UPDATE CASCADE
  );
 
+--  Message Deletion Event
+
+SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT IF NOT EXISTS delete_expired_messages
+ON SCHEDULE EVERY 1 HOUR
+DO
+  DELETE FROM Messages
+  WHERE sent_at < NOW() - INTERVAL 24 HOUR;
+
+
 -- Ledger Database
 
 -- Main Table
