@@ -32,6 +32,16 @@ CREATE TABLE Messages(
     ON UPDATE CASCADE
 );
 
+CREATE TABLE ServerMessages(
+  server_message_id VARCHAR(256) PRIMARY KEY,
+  chat_id VARCHAR(256) NOT NULL,
+  content text NOT NULL,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  FOREIGN KEY (chat_id) REFERENCES Chats(chat_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
 -- Junction Tables
 
 CREATE TABLE UserChats(

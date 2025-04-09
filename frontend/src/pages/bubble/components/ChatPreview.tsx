@@ -14,11 +14,12 @@ function ChatPreview({ chatId, chatName, numNewMessages, setChatId }: Props) {
   return (
     <div className="chat-preview" onClick={handleClick}>
       <h5 className="primary">{chatName}</h5>
-      <small>
+      {/* TODO: implement this */}
+      {/* <small>
         {numNewMessages === 0
           ? "No new messages"
           : `${numNewMessages} new messages`}
-      </small>
+      </small> */}
     </div>
   );
 }

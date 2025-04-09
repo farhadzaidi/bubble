@@ -63,7 +63,6 @@ function ChatArea({ chatId, socket }: Props) {
         sessionStorage.getItem("privateKey") as string
       );
       sessionStorage.setItem(`symmetricKey:${chatId}`, symmetricKey);
-      console.log(symmetricKey);
 
       setKeyReady(true);
     })();

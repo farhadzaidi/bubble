@@ -11,6 +11,7 @@ export const createDatabaseConnection = async (): Promise<void> => {
     user: process.env.BUBBLE_DATABASE_USER || "dev",
     password: process.env.BUBBLE_DATABASE_PASSWORD || "dev",
     database: process.env.BUBBLE_DATABASE_NAME || "bubble",
+    timezone: 'Z', // UTC
     port: Number(process.env.BUBBLE_DATABASE_PORT) || 3307, // Docker Container Port
   });
 

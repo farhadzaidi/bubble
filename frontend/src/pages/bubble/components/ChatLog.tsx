@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { makeApiCall } from "../../../utils/api";
 import { Socket } from "socket.io-client";
 import { decryptMessageWithSymmetricKey } from "../../../utils/crypto";
@@ -19,21 +19,27 @@ type Props = {
 function ChatLog({ chatId, socket }: Props) {
   const [messages, setMessages] = useState<ForwardedMessage[]>([]);
 
+  // Used for scrolling to the bottom when new messages appear
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const sortMessages = (messages: ForwardedMessage[]) => {
     messages.sort(
       (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
     );
   };
 
-  // Checks if the two timestamps are within a minute of each other
-  // Does NOT do an exact check
-  const isSameTimestamp = (timestamp1: string, timestamp2: string): boolean => {
+
+  // Checks if two timestamps are within a certain time window
+  const isRecent = (timestamp1: string, timestamp2: string): boolean => {
     const date1 = new Date(timestamp1);
     const date2 = new Date(timestamp2);
 
-    const uMinute = 1000 * 60;
+    const WINDOW = 1000 * 60 * 5; // 5 minute
     const difference = Math.abs(date1.getTime() - date2.getTime());
-    return difference < uMinute;
+    return difference < WINDOW;
   };
 
   // Formats timestamp to HH:MM in local time
@@ -77,7 +83,6 @@ function ChatLog({ chatId, socket }: Props) {
 
       sortMessages(decryptedMessages);
       setMessages(decryptedMessages);
-      console.log(decryptedMessages);
     })();
   }, [chatId]);
 
@@ -91,6 +96,7 @@ function ChatLog({ chatId, socket }: Props) {
         sessionStorage.getItem(`symmetricKey:${chatId}`) as string
       );
 
+      console.log(message.sent_at);
       message.content = decryptedMessage;
       setMessages((prev) => {
         const updated = [...prev, message];
@@ -110,7 +116,7 @@ function ChatLog({ chatId, socket }: Props) {
   let prevTimestamp: string | null = null;
 
   return (
-    // TODO: add loading animation messages haven't been loaded in yet
+    // TODO: add loading animation if messages haven't been loaded in yet
     <div className="chat-log">
       {messages.length === 0 && (
         <span className="no-messages">No Messages</span>
@@ -122,7 +128,7 @@ function ChatLog({ chatId, socket }: Props) {
 
         const sameSender = prevSender === sender;
         const sameTimestamp = prevTimestamp
-          ? isSameTimestamp(prevTimestamp, sent_at)
+          ? isRecent(prevTimestamp, sent_at)
           : false;
 
         prevSender = sender;
@@ -136,15 +142,17 @@ function ChatLog({ chatId, socket }: Props) {
             className={`message ${isSent ? "sent" : "received"}-message`}
           >
             {!sameSender && <span className="message-sender">{sender}</span>}
-            <span className={`content ${isSent ? "sent" : "received"}-content`}>
-              {content}
-            </span>
             {!sameTimestamp && (
               <span className="message-time">{formatTimestamp(sent_at)}</span>
             )}
+            <span className={`content ${isSent ? "sent" : "received"}-content`}>
+              {content}
+            </span>
           </div>
         );
       })}
+
+      <div ref={scrollRef} />
     </div>
   );
 }
