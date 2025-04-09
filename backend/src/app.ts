@@ -7,7 +7,6 @@ import { sessionMiddleware } from "./session";
 import { logRequests } from "./middleware";
 
 import { authRouter } from "./routes/auth";
-import { mainRouter } from "./routes/main";
 import { chatsRouter } from "./routes/chats";
 import { messagesRouter } from "./routes/messages";
 
@@ -31,8 +30,12 @@ if (process.env.ENV !== "prod") {
 
 // Routers
 app.use("/auth", authRouter);
-app.use("/main", mainRouter);
 app.use("/chats", chatsRouter);
 app.use("/messages", messagesRouter);
+
+// Health Check
+app.get("/health", (_req, res) => {
+  res.sendStatus(200);
+});
 
 export default app;
