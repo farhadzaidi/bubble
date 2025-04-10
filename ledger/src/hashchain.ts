@@ -22,28 +22,17 @@ export const checkIntegrity = (records: Record[]): boolean => {
   let prevHash: string | null = null;
 
   for (const record of records) {
-    console.log(`Checking record ${record.id}...`);
-
     // Ensure Ids are consecutive
     if (prevId && prevId + 1 !== record.id) return false;
-    console.log("ID is valid");
 
     // Ensure timestamps are in order
     if (prevTimestamp && prevTimestamp > record.created_at) return false;
-    console.log("Timestamp is valid");
 
-    // Ensure previous hash matches
-    if (record.id === 2) {
-      console.log(`Expected previous hash: ${prevHash}`);
-      console.log(`Record previous hash: ${record.prev_hash}`);
-    }
     if (record.id !== 1 && prevHash !== record.prev_hash) return false;
-    console.log("Previous hash is valid");
 
     // Ensure entry hash matches
     const entryHash = computeEntryHash(record);
     if (entryHash !== record.entry_hash) return false;
-    console.log("Entry hash is valid");
 
     prevId = record.id;
     prevTimestamp = record.created_at;

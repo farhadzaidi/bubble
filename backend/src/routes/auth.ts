@@ -5,7 +5,7 @@ import { RowDataPacket } from "mysql2";
 import { database } from "../database";
 import { rejectIfSession, requireSession } from "../middleware";
 import { generateAuthToken, createChallenge, verifyChallenge } from "../crypto";
-import { handleServerError } from "./utils";
+import { status, handleServerError } from "./utils";
 
 dotenv.config();
 
@@ -20,7 +20,7 @@ const regenerateSessionandIssueToken = (
 ): void => {
   req.session.regenerate(() => {
     req.session.username = username;
-    res.status(200).json({ token: generateAuthToken(username) });
+    res.status(status.OK).json({ token: generateAuthToken(username) });
   });
 };
 
@@ -32,7 +32,7 @@ authRouter.post(
   async (req, res): Promise<void> => {
     const username: string = req.body.username;
     if (username === undefined) {
-      res.status(400).json({ error: "Missing username" });
+      res.status(status.BAD_REQUEST).json({ error: "Missing username" });
       return;
     }
 
@@ -47,7 +47,7 @@ authRouter.post(
     }
 
     if (result.length === 0) {
-      res.status(401).json({ error: "Invalid credentials" });
+      res.status(status.UNAUTHORIZED).json({ error: "Invalid credentials" });
       return;
     }
 
@@ -60,7 +60,7 @@ authRouter.post(
       result[0].public_key
     );
     redis.expire(`challenge:${username}`, 5);
-    res.status(200).json({ salt: result[0].salt, challenge: challenge });
+    res.status(status.OK).json({ salt: result[0].salt, challenge: challenge });
   }
 );
 
@@ -71,13 +71,13 @@ authRouter.post(
     const username: string = req.body.username;
     const signature: string = req.body.signature;
     if (username === undefined || signature === undefined) {
-      res.status(400).json({ error: "Missing username or signature" });
+      res.status(status.BAD_REQUEST).json({ error: "Missing username or signature" });
       return;
     }
 
     const challengeExists = await redis.exists(`challenge:${username}`);
     if (!challengeExists) {
-      res.status(408).json({ error: "Challenge doesn't exist" });
+      res.status(status.REQUEST_TIMEOUT).json({ error: "Challenge expired or doesn't exist" });
       return;
     }
 
@@ -94,7 +94,7 @@ authRouter.post(
       return;
     }
 
-    res.status(401).json({ error: "Invalid credentials" });
+    res.status(status.UNAUTHORIZED).json({ error: "Invalid credentials" });
   }
 );
 
@@ -114,7 +114,7 @@ authRouter.post(
       || username.length > 16
       || !/^[a-zA-Z0-9]*$/.test(username)
     ) {
-      res.status(400).json({ error: "Invalid username" })
+      res.status(status.BAD_REQUEST).json({ error: "Invalid username" })
       return;
     }
 
@@ -129,13 +129,18 @@ authRouter.post(
     }
 
     if (result.length > 0) {
-      res.status(409).json({ error: "Username already exists" });
+      res.status(status.CONFLICT).json({ error: "Username already exists" });
       return;
     }
 
     // Store record in the database
     query = `INSERT INTO Users (username, salt, public_key) VALUES (?, ?, ?);`;
-    await database.query(query, [username, salt, publicKey]);
+    try {
+      await database.query(query, [username, salt, publicKey]);
+    } catch (error: any) {
+      handleServerError(res, error);
+      return;
+    }
 
     // Success
     regenerateSessionandIssueToken(req, res, username);
@@ -144,7 +149,7 @@ authRouter.post(
 
 authRouter.post("/sign-out", async (req, res): Promise<void> => {
   if (!req.session.username) {
-    res.sendStatus(403);
+    res.sendStatus(status.FORBIDDEN);
     return;
   }
 
@@ -152,12 +157,12 @@ authRouter.post("/sign-out", async (req, res): Promise<void> => {
     if (error !== null) console.debug(error);
   });
   res.clearCookie("connect.sid");
-  res.status(200).json({ message: "Sign out successful" });
+  res.status(status.OK).json({ message: "Sign out successful" });
 });
 
 // Regenerate auth token
 authRouter.post("/get-token", requireSession, (req, res): void => {
-  res.status(200).json({
+  res.status(status.OK).json({
     token: generateAuthToken(req.session.username as string),
   });
 });
@@ -165,6 +170,6 @@ authRouter.post("/get-token", requireSession, (req, res): void => {
 // Returns the username if the session is valid, otherwise returns an empty body
 authRouter.post("/check-session", (req, res): void => {
   if (req.session && req.session.username) {
-    res.status(200).json({ username: req.session.username });
-  } else res.status(200).json({});
+    res.status(status.OK).json({ username: req.session.username });
+  } else res.status(status.OK).json({});
 });

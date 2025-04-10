@@ -10,6 +10,7 @@ const database = await createConnection({
   database: process.env.LEDGER_DATABASE_NAME || "bubble",
   port: Number(process.env.BUBBLE_DATABASE_PORT) || 3307, // Docker Container Port
   dateStrings: false,
+  timezone: 'Z', // UTC
 });
 
 await database.connect();
