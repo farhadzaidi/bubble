@@ -24,8 +24,6 @@ if (process.env.ENV !== "prod") {
   );
 }
 
-// HELPERS
-
 const handleServerError = (res: Response, error: unknown): void => {
   res.sendStatus(status.INTERNAL_SERVER_ERROR);
   if (process.env.ENV !== "prod") {
@@ -34,6 +32,11 @@ const handleServerError = (res: Response, error: unknown): void => {
 }
 
 // Routes
+
+app.get("/health", (_req, res) => {
+  res.sendStatus(status.OK);
+});
+
 app.post("/get-public-keys", async (req, res) => {
   // Ensure the hash chain is intact
   let query = `SELECT * FROM PublicKeys ORDER BY id ASC;`;

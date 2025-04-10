@@ -154,6 +154,11 @@
   background-color: var(--primary-color);
 }
 
+.message-metadata {
+  display: flex;
+  gap: auto;
+}
+
 .message-sender {
   font-size: 1rem;
   margin-bottom: 0.25rem;

@@ -19,7 +19,6 @@ function Bubble() {
   if (isValidSession)
     return !isValidSession ? null : (
       <div className="container">
-        <div>{username}</div>
         <Menu />
         <div className="app">
           <ChatPreviewList setChatId={setChatId} />

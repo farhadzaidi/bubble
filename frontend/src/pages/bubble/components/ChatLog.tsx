@@ -141,10 +141,12 @@ function ChatLog({ chatId, socket }: Props) {
             key={message_id}
             className={`message ${isSent ? "sent" : "received"}-message`}
           >
-            {!sameSender && <span className="message-sender">{sender}</span>}
-            {!sameTimestamp && (
-              <span className="message-time">{formatTimestamp(sent_at)}</span>
-            )}
+            <div className="message-metadata">
+              {!sameSender && <span className="message-sender">{sender}</span>}
+              {!sameTimestamp && (
+                <span className="message-time">{formatTimestamp(sent_at)}</span>
+              )}
+            </div>
             <span className={`content ${isSent ? "sent" : "received"}-content`}>
               {content}
             </span>
