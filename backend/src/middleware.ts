@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
-import { Request, Response, NextFunction } from "express";
+import { ErrorRequestHandler, Request, Response, NextFunction } from "express";
 
 dotenv.config();
 
@@ -90,3 +90,17 @@ export const logRequests = (
   }
   next();
 };
+
+// Catches JSON parse error in the event of a malformed body
+export const handleParseError = (
+  error: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (error.type === "entity.parse.failed") {
+    res.status(400).json({ error: "Invalid JSON" })
+    return;
+  }
+  next();
+}

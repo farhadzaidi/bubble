@@ -4,7 +4,7 @@ import helmet from "helmet";
 import cors from "cors";
 
 import { sessionMiddleware } from "./session";
-import { logRequests } from "./middleware";
+import { handleParseError, logRequests } from "./middleware";
 
 import { authRouter } from "./routes/auth";
 import { chatsRouter } from "./routes/chats";
@@ -17,8 +17,11 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(sessionMiddleware);
+app.use(handleParseError);
 
-if (process.env.ENV !== "prod") {
+if (process.env.ENV === "prod") {
+  // TODO?
+} else {
   app.use(logRequests);
   app.use(
     cors({

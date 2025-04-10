@@ -2,16 +2,31 @@ import { Router } from "express";
 import { RowDataPacket } from "mysql2";
 import { database } from "../database";
 import { requireSession, requireAuthToken, verifyUser } from "../middleware";
+import { handleServerError } from "./utils";
 
 export const chatsRouter = Router();
-chatsRouter.use(requireSession);
-chatsRouter.use(requireAuthToken);
+// chatsRouter.use(requireSession);
+// chatsRouter.use(requireAuthToken);
 
 type EncryptionKeyType = {
   username: string;
   nonce: string;
   encryptionKey: string;
 };
+
+const isValidEncryptionKeyArray = (objectArray: any): boolean => {
+  const isEncryptionKey = (object: any): boolean => {
+    return (
+      typeof object === 'object' &&
+      object !== null &&
+      typeof object.username === 'string' &&
+      typeof object.nonce === 'string' &&
+      typeof object.encryptionKey === 'string'
+    );
+  }
+
+  return Array.isArray(objectArray) && objectArray.every(isEncryptionKey);
+}
 
 const createChatId = (encryptionKeys: EncryptionKeyType[]) => {
   const usernames = encryptionKeys.map((info) => info.username);
@@ -27,16 +42,29 @@ chatsRouter.get("/get-chats-by-user", verifyUser, async (req, res) => {
     JOIN Users U ON UC.username = U.username
     WHERE U.username = ?;
   `;
-  const [result] = await database.query<RowDataPacket[]>(query, [username]);
+
+  let result: RowDataPacket[];
+  try {
+    [result] = await database.query<RowDataPacket[]>(query, [username]);
+  } catch (error) {
+    handleServerError(res, error);
+    return;
+  }
+
   res.status(200).json(result);
 });
 
 chatsRouter.post("/create-chat", verifyUser, async (req, res) => {
   // Extract info
   const encryptionKeys: EncryptionKeyType[] = req.body.encryptionKeys;
+  if (!isValidEncryptionKeyArray(encryptionKeys)) {
+    res.status(400).json({ error: "Invalid encryption keys array" });
+    return;
+  }
+
   const creator = req.query.username as string;
-  const chatId = createChatId(encryptionKeys);
-  const chatName = chatId; // TODO
+  const chatId: string = createChatId(encryptionKeys);
+  const chatName: string = chatId; // TODO
 
   // Create chat
   let query = `INSERT INTO Chats (chat_id, chat_name, creator) VALUES (?, ?, ?)`;
@@ -44,11 +72,12 @@ chatsRouter.post("/create-chat", verifyUser, async (req, res) => {
     await database.query(query, [chatId, chatName, creator]);
   } catch (error: any) {
     if (error?.code == "ER_DUP_ENTRY") {
-      res
-        .status(409)
-        .json({ error: "Chat with these members already exists." });
+      res.status(409).json({ error: "Chat with these members already exists" });
       return;
-    } else throw error;
+    } else {
+      handleServerError(res, error);
+      return;
+    }
   }
 
   // Create UserChats table for each user
@@ -61,12 +90,22 @@ chatsRouter.post("/create-chat", verifyUser, async (req, res) => {
   ]);
 
   query = `INSERT INTO UserChats (username, chat_id, joined, nonce, encryption_key) VALUES ?`;
-  await database.query(query, [userChats]);
+  try {
+    await database.query(query, [userChats]);
+  } catch (error: any) {
+    handleServerError(res, error);
+    return;
+  }
 
   // Modify creator's UserChats table to set "joined" attribute to true since
   // the creator automatically joins the chat
   query = `UPDATE UserChats SET joined=true WHERE username=? AND chat_id=?`;
-  await database.query(query, [creator, chatId]);
+  try {
+    await database.query(query, [creator, chatId]);
+  } catch (error: any) {
+    handleServerError(res, error);
+    return;
+  }
 
   res.status(200).json({});
 });
@@ -94,10 +133,14 @@ chatsRouter.post("/get-encryption-key", async (req, res) => {
   const chatId: string = req.body.chatId;
 
   const query = `SELECT nonce, encryption_key FROM UserChats WHERE username = ? AND chat_id = ?`;
-  const [result] = await database.query<RowDataPacket[]>(query, [
-    username,
-    chatId,
-  ]);
+  let result: RowDataPacket[];
+  try {
+    [result] = await database.query<RowDataPacket[]>(query, [username, chatId,]);
+  } catch (error: any) {
+    handleServerError(res, error);
+    return;
+  }
+
 
   if (result.length === 0) {
     res.status(404).json({
@@ -106,15 +149,20 @@ chatsRouter.post("/get-encryption-key", async (req, res) => {
     return;
   }
 
-  res
-    .status(200)
-    .json({ nonce: result[0].nonce, encryptionKey: result[0].encryption_key });
+  res.status(200).json({ nonce: result[0].nonce, encryptionKey: result[0].encryption_key });
 });
 
 chatsRouter.get("/get-chat-creator", async (req, res) => {
   const chatId: string = req.query.chatId as string;
+
   const query = `SELECT creator FROM Chats WHERE chat_id = ?`;
-  const [result] = await database.query<RowDataPacket[0]>(query, [chatId]);
+  let result: RowDataPacket[]
+  try {
+    [result] = await database.query<RowDataPacket[]>(query, [chatId]);
+  } catch (error) {
+    handleServerError(res, error);
+    return;
+  }
 
   if (result.length === 0) {
     res.status(404).json({
