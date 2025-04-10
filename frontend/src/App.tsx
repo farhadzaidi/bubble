@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { makeApiCall } from "./utils/api";
 
 import Bubble from "./pages/bubble/Bubble";
 import Landing from "./pages/landing/Landing";
@@ -7,7 +8,6 @@ import SignIn from "./pages/sign_in/SignIn";
 import SignUp from "./pages/sign_up/SignUp";
 import PageNotFound from "./pages/page_not_found/PageNotFound";
 import ApplicationDown from "./pages/application_unavailable/ApplicationUnavailbale";
-import { makeApiCall } from "./utils/api";
 
 function App() {
   const [appReady, setAppReady] = useState(false);
